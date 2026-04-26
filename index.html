@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bonairian — De Interactieve Kaart van Bonaire</title>
+  <meta name="description" content="Ontdek Bonaire op één kaart: de mooiste snorkel- en duikplekken, restaurants, hotels, bezienswaardigheden en activiteiten — boven én onder water.">
+  <link rel="canonical" href="https://bonairian.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://bonairian.com/">
+  <meta property="og:title" content="Bonairian — De Interactieve Kaart van Bonaire">
+  <meta property="og:description" content="Ontdek Bonaire op één kaart: snorkelplekken, restaurants, hotels, bezienswaardigheden en activiteiten.">
+  <meta property="og:locale" content="nl_NL">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bonairian — De Interactieve Kaart van Bonaire">
+  <meta name="twitter:description" content="Ontdek Bonaire op één kaart: snorkelplekken, restaurants, hotels en bezienswaardigheden.">
+
+  <!-- Favicon (inline SVG, geen extra request) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%23c75d3f'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%23fbf6ec'/%3E%3C/svg%3E">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f3ead9;
+      --paper: #fbf6ec;
+      --ink: #11242b;
+      --ink-soft: rgba(17, 36, 43, 0.65);
+      --line: rgba(17, 36, 43, 0.12);
+      --accent: #c75d3f;
+
+      --c-snorkel: #0c8aa1;
+      --c-restaurant: #c75d3f;
+      --c-hotel: #c39a3c;
+      --c-bezienswaardigheid: #3f6f48;
+      --c-activiteit: #5984b0;
+
+      --serif: 'Fraunces', 'Hoefler Text', Georgia, serif;
+      --sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .page-header {
+      padding: 2.75rem 1.5rem 1.25rem;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at top, rgba(199, 93, 63, 0.07), transparent 60%),
+        linear-gradient(180deg, var(--paper) 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.85rem;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+      letter-spacing: -0.025em;
+      line-height: 1;
+    }
+
+    h1 em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      margin: 1rem auto 0;
+      font-size: 1rem;
+      color: var(--ink-soft);
+      max-width: 560px;
+      line-height: 1.55;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      padding: 1.25rem 1.5rem 1.5rem;
+      background: var(--bg);
+    }
+
+    .chip {
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      padding: 0.55rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      user-select: none;
+    }
+
+    .chip::before {
+      content: '';
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--chip-color, var(--ink));
+      transition: transform 0.18s ease;
+    }
+
+    .chip[data-filter="snorkel"] { --chip-color: var(--c-snorkel); }
+    .chip[data-filter="restaurant"] { --chip-color: var(--c-restaurant); }
+    .chip[data-filter="hotel"] { --chip-color: var(--c-hotel); }
+    .chip[data-filter="bezienswaardigheid"] { --chip-color: var(--c-bezienswaardigheid); }
+    .chip[data-filter="activiteit"] { --chip-color: var(--c-activiteit); }
+
+    .chip:hover { transform: translateY(-1px); border-color: rgba(17, 36, 43, 0.3); }
+
+    .chip.inactive {
+      background: transparent;
+      color: var(--ink-soft);
+      opacity: 0.55;
+    }
+    .chip.inactive::before { transform: scale(0.6); opacity: 0.5; }
+
+    .chip .count {
+      font-size: 0.7rem;
+      color: var(--ink-soft);
+      font-variant-numeric: tabular-nums;
+      margin-left: 0.15rem;
+    }
+
+    #map {
+      flex: 1;
+      min-height: 65vh;
+      background: #d6e4ea;
+    }
+
+    /* Custom markers */
+    .marker-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 3px solid #fbf6ec;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      transition: transform 0.18s ease;
+      cursor: pointer;
+    }
+    .marker-dot:hover { transform: scale(1.35); }
+
+    .marker-snorkel { background: var(--c-snorkel); }
+    .marker-restaurant { background: var(--c-restaurant); }
+    .marker-hotel { background: var(--c-hotel); }
+    .marker-bezienswaardigheid { background: var(--c-bezienswaardigheid); }
+    .marker-activiteit { background: var(--c-activiteit); }
+
+    /* Leaflet popup styling */
+    .leaflet-popup-content-wrapper {
+      background: var(--paper);
+      border-radius: 6px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+      border: 1px solid var(--line);
+    }
+    .leaflet-popup-tip { background: var(--paper); border: 1px solid var(--line); }
+    .leaflet-popup-content {
+      font-family: var(--sans);
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: var(--ink);
+      margin: 0.95rem 1.15rem 0.95rem;
+      min-width: 200px;
+      max-width: 280px;
+    }
+    .popup-cat {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.18rem 0.5rem;
+      border-radius: 3px;
+      margin-bottom: 0.55rem;
+      color: var(--paper);
+    }
+    .popup-cat.snorkel { background: var(--c-snorkel); }
+    .popup-cat.restaurant { background: var(--c-restaurant); }
+    .popup-cat.hotel { background: var(--c-hotel); }
+    .popup-cat.bezienswaardigheid { background: var(--c-bezienswaardigheid); }
+    .popup-cat.activiteit { background: var(--c-activiteit); }
+
+    .popup-title {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.2;
+      margin-bottom: 0.4rem;
+      color: var(--ink);
+    }
+    .popup-desc { color: var(--ink-soft); font-size: 0.85rem; }
+    .popup-link {
+      display: inline-block;
+      margin-top: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 1px;
+    }
+    .popup-link:hover { opacity: 0.7; }
+
+    /* Layer control restyle */
+    .leaflet-control-layers {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      font-family: var(--sans);
+      font-size: 0.82rem;
+    }
+
+    /* Attribution restyle */
+    .leaflet-control-attribution {
+      background: rgba(251, 246, 236, 0.92) !important;
+      font-family: var(--sans);
+      font-size: 0.7rem;
+    }
+
+    /* Footer credit */
+    .legend-footer {
+      padding: 0.85rem 1.5rem;
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--ink-soft);
+      letter-spacing: 0.04em;
+      background: var(--paper);
+      border-top: 1px solid var(--line);
+    }
+
+    @media (max-width: 600px) {
+      .page-header { padding: 1.75rem 1rem 1rem; }
+      .filters { padding: 0.75rem 1rem 1rem; }
+      .chip { font-size: 0.78rem; padding: 0.45rem 0.85rem; }
+      #map { min-height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <div class="eyebrow">Caribische Reisgids</div>
+    <h1>Ontdek <em>Bonaire</em></h1>
+    <p class="subtitle">Een interactieve kaart met de mooiste snorkel- en duikplekken, restaurants, hotels en bezienswaardigheden — boven en onder water.</p>
+  </header>
+
+  <nav class="filters" aria-label="Filter categorieën">
+    <button class="chip" data-filter="snorkel">Snorkelen &amp; Duiken <span class="count"></span></button>
+    <button class="chip" data-filter="restaurant">Restaurants <span class="count"></span></button>
+    <button class="chip" data-filter="hotel">Hotels &amp; Resorts <span class="count"></span></button>
+    <button class="chip" data-filter="bezienswaardigheid">Bezienswaardigheden <span class="count"></span></button>
+    <button class="chip" data-filter="activiteit">Activiteiten <span class="count"></span></button>
+  </nav>
+
+  <div id="map" role="application" aria-label="Interactieve kaart van Bonaire"></div>
+
+  <div class="legend-footer">
+    Klik op een marker voor meer informatie · Schakel categorieën met de filters · Wissel naar satellietweergave rechtsboven
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    // ============================================================
+    // POI DATABASE — Bonaire bezienswaardigheden, restaurants, etc.
+    // ============================================================
+    // Let op: coördinaten van bekende natuurplekken zijn accuraat;
+    // adressen in Kralendijk zijn benaderingen — verifieer per locatie
+    // voor je deze publiek zet.
+
+    const POIS = [
+      // --- SNORKELEN & DUIKEN ---
+      { cat: 'snorkel', name: '1000 Steps', coords: [12.2240, -68.3559],
+        desc: 'Iconische duik- en snorkelplek. Trap (eigenlijk 64 treden) naar een prachtig koraalrif met schildpadden.' },
+      { cat: 'snorkel', name: 'Karpata', coords: [12.2210, -68.3550],
+        desc: 'Een van de mooiste rifhellingen van Bonaire. Steile drop-off met grote koraalkolonies.' },
+      { cat: 'snorkel', name: 'Salt Pier', coords: [12.1054, -68.2845],
+        desc: 'Onder de zoutpier — kathedraal van licht en zwermen vis. Alleen toegankelijk als er geen schip ligt.' },
+      { cat: 'snorkel', name: 'Bari Reef', coords: [12.1731, -68.2972],
+        desc: 'Bij Sand Dollar / Buddy Dive. Bekend om de hoogste vissoort-diversiteit van het Caribisch gebied.' },
+      { cat: 'snorkel', name: 'Andrea I & II', coords: [12.1808, -68.3010],
+        desc: 'Twee aangrenzende duikstekken met gemakkelijke instap en gezond koraal — populair bij snorkelaars.' },
+      { cat: 'snorkel', name: "Tori's Reef", coords: [12.0871, -68.2790],
+        desc: 'Rustige zuidelijke plek met zeegras-velden, schildpadden en zandbodem-wezens.' },
+      { cat: 'snorkel', name: 'Pink Beach', coords: [12.0830, -68.2720],
+        desc: 'Zacht roze koraalzand en helder ondiep water. Goed voor relaxed snorkelen.' },
+      { cat: 'snorkel', name: 'Klein Bonaire — Just A Nice Dive', coords: [12.1630, -68.3050],
+        desc: 'Onbewoond eilandje, alleen per boot bereikbaar. Ongerept rif rondom — een must-do.' },
+      { cat: 'snorkel', name: 'Te Amo Beach', coords: [12.1170, -68.2720],
+        desc: 'Vlak naast de luchthaven. Eenvoudige instap, levendig huisrif. Vliegtuigen kijken erbij.' },
+      { cat: 'snorkel', name: 'Boka Slagbaai', coords: [12.2700, -68.4135],
+        desc: 'Dramatische baai in Washington Slagbaai NP. Klimmend rif en historische zoutgebouwen.' },
+      { cat: 'snorkel', name: 'Wayaka II', coords: [12.2880, -68.4090],
+        desc: 'Afgelegen plek in het noordpark. Stille intimiteit, grote pelagische vissen mogelijk.' },
+      { cat: 'snorkel', name: 'Calabas Reef', coords: [12.1500, -68.2818],
+        desc: 'Huisrif van Divi Flamingo, vlak bij Kralendijk. Toegankelijk en levendig.' },
+      { cat: 'snorkel', name: 'Something Special', coords: [12.1620, -68.2825],
+        desc: 'Bekend om de zandwoestijn met tuinaal-kolonies en inktvissen — vooral in de schemering.' },
+      { cat: 'snorkel', name: 'Alice in Wonderland', coords: [12.0950, -68.2820],
+        desc: 'Dubbel rif aan de zuidkust met grote koraalkoppen. Diepere stek, ook geweldig vanaf de kant.' },
+
+      // --- RESTAURANTS ---
+      { cat: 'restaurant', name: 'At Sea', coords: [12.1520, -68.2785],
+        desc: 'Fine dining aan zee — moderne creatieve keuken, een van de bekendste van het eiland.' },
+      { cat: 'restaurant', name: 'Brass Boer Bonaire', coords: [12.1518, -68.2779],
+        desc: 'Sterrenrestaurant van de gebroeders Boer. Caribisch-Nederlandse fusie aan het water.' },
+      { cat: 'restaurant', name: 'Capriccio', coords: [12.1514, -68.2784],
+        desc: 'Klassiek Italiaans in Kralendijk. Verse pasta, indrukwekkende wijnkaart.' },
+      { cat: 'restaurant', name: "Sebastian's", coords: [12.1490, -68.2780],
+        desc: 'Internationaal-Caribisch met sfeervol terras. Vis, vlees en lokale gerechten.' },
+      { cat: 'restaurant', name: 'Spice Beach Club', coords: [12.1402, -68.2715],
+        desc: 'Strandrestaurant bij Eden Beach. Zonsondergangen, cocktails en relaxed dineren.' },
+      { cat: 'restaurant', name: 'It Rains Fishes', coords: [12.1500, -68.2783],
+        desc: 'Vis & schelpdieren aan de boulevard. Populaire klassieker.' },
+      { cat: 'restaurant', name: "Karel's Beach Bar", coords: [12.1525, -68.2782],
+        desc: 'Iconische pier-bar in Kralendijk. Cocktails boven het water — perfect voor zonsondergang.' },
+      { cat: 'restaurant', name: 'Mona Lisa', coords: [12.1495, -68.2790],
+        desc: 'Gezellige bistro/bar met Europese keuken — ouderwetse charme in het centrum.' },
+      { cat: 'restaurant', name: 'La Cantina (Cuba Compagnie)', coords: [12.1518, -68.2780],
+        desc: 'Cubaans-Caribisch met live muziek. Tapas, cocktails en sigaren.' },
+      { cat: 'restaurant', name: "Wil's Tropical Grill", coords: [12.1490, -68.2778],
+        desc: 'Tropische grill met lokale vissoorten. Authentiek en sfeervol.' },
+      { cat: 'restaurant', name: 'Cactus Blue', coords: [12.1510, -68.2786],
+        desc: 'Zuid-Amerikaans geïnspireerd, knap gepresenteerde gerechten.' },
+      { cat: 'restaurant', name: 'Posada Para Mira', coords: [12.2185, -68.3540],
+        desc: 'Lokale Bonairiaanse keuken in Rincon. Geitenstoof met uitzicht.' },
+      { cat: 'restaurant', name: "Donna & Giorgio's", coords: [12.1484, -68.2755],
+        desc: 'Italiaans, geliefd bij vaste gasten — tuin-terras, klassieke pasta.' },
+      { cat: 'restaurant', name: 'Ingridients', coords: [12.1500, -68.2780],
+        desc: 'Verfijnde seizoenskeuken in een intieme setting in Kralendijk.' },
+
+      // --- HOTELS & RESORTS ---
+      { cat: 'hotel', name: 'Harbour Village Beach Club', coords: [12.1670, -68.2820],
+        desc: 'Vijfsterren-resort met privé-strand en jachthaven. Het meest luxueuze adres van het eiland.' },
+      { cat: 'hotel', name: 'Buddy Dive Resort', coords: [12.1730, -68.2972],
+        desc: 'Duikfanaten-favoriet met huisrif (Bari Reef) en drive-thru tankstation voor flessen.' },
+      { cat: 'hotel', name: "Captain Don's Habitat", coords: [12.1690, -68.2885],
+        desc: 'Legendarisch duikresort opgericht door duikpionier Don Stewart. Alle kamers oceaanzicht.' },
+      { cat: 'hotel', name: 'Plaza Beach Resort', coords: [12.1413, -68.2716],
+        desc: 'All-inclusive beachresort met privéstrand bij de zuidpunt van Kralendijk.' },
+      { cat: 'hotel', name: 'Delfins Beach Resort', coords: [12.1700, -68.2890],
+        desc: 'Familieresort met zandstrand, zwembaden en eigen huisrif. Goede combinatie van rust en faciliteiten.' },
+      { cat: 'hotel', name: 'Sorobon Beach Resort', coords: [12.1015, -68.2305],
+        desc: 'Aan windsurf-mekka Lac Bay. Bungalows op het strand, ideaal voor watersporters.' },
+      { cat: 'hotel', name: 'Bellafonte Luxury Oceanfront', coords: [12.1430, -68.2735],
+        desc: 'Boutique appartementen direct aan zee. Klein en chic, populair voor langere verblijven.' },
+      { cat: 'hotel', name: 'Courtyard by Marriott Bonaire', coords: [12.1490, -68.2740],
+        desc: 'Modern Marriott-resort vlak bij Kralendijk centrum.' },
+      { cat: 'hotel', name: 'Sand Dollar Condominium', coords: [12.1737, -68.2972],
+        desc: 'Appartementen-resort naast Buddy Dive. Eigen keuken, ideaal voor families/lange verblijven.' },
+      { cat: 'hotel', name: 'Eden Beach Resort', coords: [12.1683, -68.2840],
+        desc: 'Casual strandresort met Spice Beach Club restaurant. Goede prijs/kwaliteit.' },
+      { cat: 'hotel', name: 'Resort Bonaire', coords: [12.1490, -68.2730],
+        desc: 'Stadsresort in het hart van Kralendijk — wandelafstand tot de boulevard.' },
+      { cat: 'hotel', name: 'Bamboo Bali Bonaire', coords: [12.1820, -68.2540],
+        desc: 'Adults-only boutique B&B in Aziatische stijl. Rustig, intiem, in het binnenland.' },
+      { cat: 'hotel', name: 'Van der Valk Plaza', coords: [12.1400, -68.2715],
+        desc: 'Resort met meerdere zwembaden, restaurants, en privé-zandstrand.' },
+
+      // --- BEZIENSWAARDIGHEDEN ---
+      { cat: 'bezienswaardigheid', name: 'Washington Slagbaai NP', coords: [12.2950, -68.3950],
+        desc: 'Het noordelijke natuurpark — ruige kust, flamingo-meer Goto, klifformaties en het hoogste punt Brandaris.' },
+      { cat: 'bezienswaardigheid', name: 'Pekelmeer Flamingo Sanctuary', coords: [12.0500, -68.2500],
+        desc: 'Een van slechts vier broedgebieden ter wereld voor Caribische flamingo. Niet betreden — observeer vanaf de weg.' },
+      { cat: 'bezienswaardigheid', name: 'Slavenhuisjes Wit (Witte Pan)', coords: [12.0440, -68.2700],
+        desc: 'Aangrijpende historische zoutslaven-onderkomens uit 1850. Wit en oranje gemarkeerde clusters in het zuiden.' },
+      { cat: 'bezienswaardigheid', name: 'Slavenhuisjes Rood (Rode Pan)', coords: [12.0610, -68.2730],
+        desc: 'Tweede cluster slavenhuisjes, herkenbaar aan de rode kleur. Onderdeel van het zout-erfgoed.' },
+      { cat: 'bezienswaardigheid', name: 'Willemstoren Vuurtoren', coords: [12.0185, -68.2360],
+        desc: 'Oudste vuurtoren van het eiland (1837), aan de zuidpunt. Ruige, eenzame schoonheid.' },
+      { cat: 'bezienswaardigheid', name: 'Rincon — oudste dorp', coords: [12.2200, -68.3550],
+        desc: 'Het oudste nederzetting van Bonaire (1527). Levendige zaterdagmarkt, lokale kunst en Cadushy-distilleerderij.' },
+      { cat: 'bezienswaardigheid', name: 'Cadushy Distilleerderij', coords: [12.2210, -68.3565],
+        desc: 'Lokale distillery met cactuslikeur en rum-proeverijen. Een aanrader in Rincon.' },
+      { cat: 'bezienswaardigheid', name: 'Mangrove Info Center (Lac Bay)', coords: [12.1100, -68.2350],
+        desc: 'Kano- en kayaktours door het beschermde mangrovewoud van Lac Bay. Natuureducatie en biodiversiteit.' },
+      { cat: 'bezienswaardigheid', name: 'Donkey Sanctuary', coords: [12.1330, -68.2780],
+        desc: 'Opvang voor verlaten Bonairiaanse ezels — je kunt rondrijden tussen ze door en ze voeren.' },
+      { cat: 'bezienswaardigheid', name: 'Wilhelminapark', coords: [12.1525, -68.2780],
+        desc: 'Klein park aan de boulevard van Kralendijk — koloniale architectuur en uitzicht op zee.' },
+      { cat: 'bezienswaardigheid', name: 'Fort Oranje', coords: [12.1510, -68.2787],
+        desc: '17e-eeuws fortje midden in Kralendijk. Fotogeniek met kanonnen en de oude vuurtoren ernaast.' },
+      { cat: 'bezienswaardigheid', name: 'Seru Largu (uitkijkpunt)', coords: [12.1820, -68.2800],
+        desc: 'Hoog uitkijkpunt boven Kralendijk en Klein Bonaire. Spectaculair bij zonsondergang.' },
+      { cat: 'bezienswaardigheid', name: 'Lac Cai (oester-pier)', coords: [12.1100, -68.2270],
+        desc: 'Lokale ontmoetingsplek aan de oostkust met conch-bergen, simpele lunch en muziek op zondag.' },
+      { cat: 'bezienswaardigheid', name: 'Boka Onima — Indiaanse inscripties', coords: [12.2580, -68.3030],
+        desc: 'Pre-Columbiaanse rotsschilderingen van de Caquetio-bevolking, in de noordoostelijke baai.' },
+      { cat: 'bezienswaardigheid', name: 'Zoutpiramides', coords: [12.0800, -68.2680],
+        desc: 'Hagelwitte zoutbergen — een visueel spektakel naast het Pekelmeer.' },
+      { cat: 'bezienswaardigheid', name: 'Goto Meer', coords: [12.2600, -68.3850],
+        desc: 'Zout meer in Washington Slagbaai NP, vaak vol flamingo\'s. Een van de mooiste rondritten.' },
+
+      // --- ACTIVITEITEN ---
+      { cat: 'activiteit', name: 'Sorobon Beach (windsurf/kitesurf)', coords: [12.1015, -68.2305],
+        desc: 'Wereldberoemde windsurfspot met ondiep, plat water en constante passaatwind. Verschillende scholen.' },
+      { cat: 'activiteit', name: 'Lac Bay', coords: [12.1050, -68.2300],
+        desc: 'Uitgestrekte beschermde baai — ideaal voor beginners op windsurf, SUP en kayak.' },
+      { cat: 'activiteit', name: 'Atlantis kitesurfspot', coords: [12.0850, -68.2800],
+        desc: 'Aan de zuidwestkust — kitesurfspot voor gevorderden. Lange downwinders mogelijk.' },
+      { cat: 'activiteit', name: 'Te Amo kayak / SUP', coords: [12.1170, -68.2720],
+        desc: 'Rustige instap voor SUP en kajak vlak bij de luchthaven.' },
+      { cat: 'activiteit', name: 'Mangrove kayak tour', coords: [12.1100, -68.2350],
+        desc: 'Geleide kayaktours door de mangroves — uniek ecosysteem met juveniele vissen en zeesterren.' },
+      { cat: 'activiteit', name: 'Klein Bonaire watertaxi', coords: [12.1525, -68.2783],
+        desc: 'Watertaxi vanaf Karel\'s Pier in Kralendijk naar Klein Bonaire — perfect voor een snorkel-dag.' },
+      { cat: 'activiteit', name: 'Bonaire Adventure (zip & kayak)', coords: [12.1480, -68.2730],
+        desc: 'Lokale aanbieder van avonturen-tours — kajakken, klifspringen, hiken.' },
+      { cat: 'activiteit', name: 'Brandaris hike', coords: [12.2870, -68.4015],
+        desc: 'Beklimming van de hoogste piek (241m) in Washington Slagbaai NP. Zwaar maar prachtig.' },
+      { cat: 'activiteit', name: 'Mountainbike route Subi Brandaris', coords: [12.2850, -68.3950],
+        desc: 'Een van de mooiste MTB-routes — door cactusvlakten en heuvels.' },
+    ];
+
+    // ============================================================
+    // INITIALISATIE KAART
+    // ============================================================
+    const map = L.map('map', {
+      zoomControl: true,
+      preferCanvas: false
+    }).setView([12.158, -68.295], 11);
+
+    // Tegels — Voyager (mooi voor toerisme) en Satelliet
+    const voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    });
+
+    const satelliet = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics'
+    });
+
+    voyager.addTo(map);
+
+    L.control.layers(
+      { 'Standaard': voyager, 'Satelliet': satelliet },
+      null,
+      { position: 'topright', collapsed: true }
+    ).addTo(map);
+
+    // ============================================================
+    // MARKERS PER CATEGORIE
+    // ============================================================
+    const CAT_LABELS = {
+      snorkel: 'Snorkel/Duik',
+      restaurant: 'Restaurant',
+      hotel: 'Hotel',
+      bezienswaardigheid: 'Bezienswaardigheid',
+      activiteit: 'Activiteit'
+    };
+
+    function createIcon(cat) {
+      return L.divIcon({
+        className: 'custom-marker',
+        html: `<div class="marker-dot marker-${cat}"></div>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+        popupAnchor: [0, -9]
+      });
+    }
+
+    function buildPopup(p) {
+      const gmaps = `https://www.google.com/maps/search/?api=1&query=${p.coords[0]},${p.coords[1]}`;
+      return `
+        <span class="popup-cat ${p.cat}">${CAT_LABELS[p.cat]}</span>
+        <div class="popup-title">${p.name}</div>
+        <div class="popup-desc">${p.desc}</div>
+        <a class="popup-link" href="${gmaps}" target="_blank" rel="noopener">Open in Google Maps →</a>
+      `;
+    }
+
+    // Layer groups per categorie
+    const layers = {};
+    Object.keys(CAT_LABELS).forEach(cat => {
+      layers[cat] = L.layerGroup();
+    });
+
+    POIS.forEach(p => {
+      const marker = L.marker(p.coords, { icon: createIcon(p.cat) })
+        .bindPopup(buildPopup(p), { maxWidth: 300, autoPanPadding: [40, 40] });
+      layers[p.cat].addLayer(marker);
+    });
+
+    // Alle layers initieel toevoegen
+    Object.values(layers).forEach(layer => layer.addTo(map));
+
+    // ============================================================
+    // FILTER CHIPS
+    // ============================================================
+    const counts = POIS.reduce((acc, p) => {
+      acc[p.cat] = (acc[p.cat] || 0) + 1;
+      return acc;
+    }, {});
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      const cat = chip.dataset.filter;
+      // Toon aantal
+      const countEl = chip.querySelector('.count');
+      if (countEl) countEl.textContent = `(${counts[cat] || 0})`;
+
+      chip.addEventListener('click', () => {
+        const isInactive = chip.classList.toggle('inactive');
+        if (isInactive) {
+          map.removeLayer(layers[cat]);
+        } else {
+          layers[cat].addTo(map);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
