@@ -176,34 +176,29 @@
     .tip-body{font-size:.78rem;color:var(--ink-s);line-height:1.55;font-weight:300}
 
     /* ── FOOTER ── */
-    .foot-wave{background:var(--ivory-2);padding:0 2rem}
-    .foot-wave svg{display:block;width:100%}
     footer{background:var(--teal-deep);padding:4rem 2rem 3rem}
     .fi{max-width:1180px;margin:0 auto}
-
-    /* Footer top row */
-    .ft-top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:3rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,.1)}
+    .ft-top{display:flex;gap:4rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,.1);flex-wrap:wrap}
+    .ft-brand{flex:0 0 300px;min-width:220px}
+    .ft-cols{display:flex;gap:3rem;flex:1;flex-wrap:wrap}
     .ft-logo{font-family:var(--serif);font-size:1.7rem;font-weight:400;color:#fff;margin-bottom:.75rem;line-height:1}
-    .ft-logo em{font-style:italic;color:rgba(255,255,255,.5)}
-    .ft-tagline{font-size:.9rem;color:rgba(255,255,255,.55);font-weight:300;line-height:1.75;max-width:280px}
-    .ft-col-title{font-size:.64rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:1rem}
+    .ft-logo em{font-style:italic;color:rgba(255,255,255,.45)}
+    .ft-tagline{font-size:.88rem;color:rgba(255,255,255,.5);font-weight:300;line-height:1.75}
+    .ft-col{min-width:140px}
+    .ft-col-title{font-size:.63rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:1rem}
     .ft-col ul{list-style:none;display:flex;flex-direction:column;gap:.55rem}
-    .ft-col a{font-size:.83rem;color:rgba(255,255,255,.6);text-decoration:none;font-weight:300;transition:color .18s}
+    .ft-col a{font-size:.82rem;color:rgba(255,255,255,.58);text-decoration:none;font-weight:300;transition:color .18s}
     .ft-col a:hover{color:#fff}
-
-    /* Footer bottom row */
     .ft-bottom{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;padding-top:2rem}
-    .ft-copy{font-size:.73rem;color:rgba(255,255,255,.32)}
+    .ft-copy{font-size:.72rem;color:rgba(255,255,255,.3)}
     .ppill{display:inline-flex;align-items:center;gap:.45rem;padding:.38rem 1rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;font-size:.72rem;color:rgba(255,255,255,.5);text-decoration:none;transition:all .18s}
-    .ppill:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.8)}
-    .ppill a{color:rgba(255,255,255,.8);font-weight:600;text-decoration:none}
-    .ppill a:hover{color:#fff}
+    .ppill:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)}
+    .ppill strong{color:#fff;font-weight:600}
 
     /* ── ANIMATIONS ── */
     @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
     /* ── RESPONSIVE ── */
-    @media(max-width:900px){.ft-top{grid-template-columns:1fr 1fr}}
     @media(max-width:768px){
       .bar{padding:0 1.25rem}
       nav{display:none}
@@ -211,7 +206,8 @@
       #map{height:420px}
       .stats{gap:1.5rem}
       .mh{padding:2.5rem 1.25rem 1.25rem}
-      .ft-top{grid-template-columns:1fr}
+      .ft-top{flex-direction:column;gap:2rem}
+      .ft-brand{flex:none}
       .ft-bottom{flex-direction:column;align-items:flex-start;gap:1rem}
       .hm{display:none}
       .loc-desc{display:none}
@@ -343,38 +339,36 @@
 <footer>
   <div class="fi">
     <div class="ft-top">
-      <!-- Brand -->
-      <div>
+      <div class="ft-brand">
         <div class="ft-logo">Bon<em>airian</em></div>
-        <p class="ft-tagline">Een eiland waar je tot rust komt, maar ook thuis. De meest complete onafhankelijke gids van Bonaire.</p>
+        <p class="ft-tagline">Een eiland waar je tot rust komt,<br>maar ook thuis. De meest complete<br>onafhankelijke gids van Bonaire.</p>
       </div>
-      <!-- Nav links -->
-      <div class="ft-col">
-        <div class="ft-col-title">Ontdekken</div>
-        <ul>
-          <li><a href="#ms">Interactieve kaart</a></li>
-          <li><a href="#gs">Snorkelen &amp; Duiken</a></li>
-          <li><a href="#gs">Restaurants</a></li>
-          <li><a href="#gs">Hotels &amp; Resorts</a></li>
-          <li><a href="#gs">Bezienswaardigheden</a></li>
-        </ul>
-      </div>
-      <!-- Practical links -->
-      <div class="ft-col">
-        <div class="ft-col-title">Handig</div>
-        <ul>
-          <li><a href="https://stinapa.bonairenaturefee.org" target="_blank" rel="noopener">Nature Tag kopen</a></li>
-          <li><a href="https://bonaireisland.com" target="_blank" rel="noopener">Officiële toerisme</a></li>
-          <li><a href="https://www.google.com/maps/place/Bonaire" target="_blank" rel="noopener">Bonaire op Google Maps</a></li>
-          <li><a href="https://rankbird.com" target="_blank" rel="noopener dofollow">RankBird SEO</a></li>
-        </ul>
+      <div class="ft-cols">
+        <div class="ft-col">
+          <div class="ft-col-title">Ontdekken</div>
+          <ul>
+            <li><a href="#ms">Interactieve kaart</a></li>
+            <li><a href="#gs">Snorkelen &amp; Duiken</a></li>
+            <li><a href="#gs">Restaurants</a></li>
+            <li><a href="#gs">Hotels &amp; Resorts</a></li>
+            <li><a href="#gs">Bezienswaardigheden</a></li>
+          </ul>
+        </div>
+        <div class="ft-col">
+          <div class="ft-col-title">Handig</div>
+          <ul>
+            <li><a href="https://stinapa.bonairenaturefee.org" target="_blank" rel="noopener">Nature Tag kopen</a></li>
+            <li><a href="https://bonaireisland.com" target="_blank" rel="noopener">Officiële toerisme</a></li>
+            <li><a href="https://www.google.com/maps/place/Bonaire" target="_blank" rel="noopener">Bonaire op Google Maps</a></li>
+            <li><a href="https://rankbird.com" target="_blank" rel="noopener dofollow">RankBird SEO</a></li>
+          </ul>
+        </div>
       </div>
     </div>
-
     <div class="ft-bottom">
       <span class="ft-copy">&copy; 2025 Bonairian &middot; Kaartdata: OpenStreetMap, CARTO, Esri</span>
       <a href="https://rankbird.com" target="_blank" rel="noopener dofollow" class="ppill">
-        <span>⚡</span> SEO powered by <span style="color:#fff;font-weight:600">RankBird.com</span>
+        ⚡ SEO powered by <strong>RankBird.com</strong>
       </a>
     </div>
   </div>
@@ -454,7 +448,7 @@ const SC='#1A8499';
 function st(n,sz=13){return Array.from({length:5},(_,i)=>`<span style="color:${i<n?SC:'rgba(28,28,26,.15)'};font-size:${sz}px">&#9733;</span>`).join('')}
 
 // ── MAP ──
-const map=L.map('map').setView([12.158,-68.310],11);
+const map=L.map('map').setView([12.17,-68.265],12);
 const voy=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'});
 const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri'});
 voy.addTo(map);
