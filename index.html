@@ -3,363 +3,491 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bonairian — De Interactieve Gids van Bonaire</title>
+  <title>Bonairian — De Gids van Bonaire</title>
   <meta name="description" content="De meest complete gids van Bonaire. Snorkelplekken, restaurants, hotels en bezienswaardigheden op één interactieve kaart.">
   <link rel="canonical" href="https://bonairian.com/">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://bonairian.com/">
-  <meta property="og:title" content="Bonairian — De Interactieve Gids van Bonaire">
+  <meta property="og:title" content="Bonairian — De Gids van Bonaire">
   <meta property="og:description" content="De meest complete gids van Bonaire.">
   <meta property="og:locale" content="nl_NL">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%23b8962e'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%230a1628'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%230A4A58'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
   <style>
-    :root{--navy:#0a1628;--navy-2:#0f2040;--navy-3:#162b52;--gold:#b8962e;--gold-lt:#d4af50;--gold-pale:rgba(184,150,46,.12);--cream:#f5ede0;--cream-2:#ede0cc;--white:#fff;--muted:rgba(245,237,224,.55);--line:rgba(184,150,46,.2);--c-snorkel:#19a5c4;--c-resto:#c75d3f;--c-hotel:#b8962e;--c-sight:#5a9e6f;--c-act:#7a9ec4;--serif:'Cormorant Garamond',Garamond,Georgia,serif;--sans:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;--radius:4px;--radius-lg:8px}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{font-family:var(--sans);background:var(--navy);color:var(--cream);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-    .topbar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:rgba(10,22,40,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-    .logo{font-family:var(--serif);font-size:1.5rem;font-weight:600;letter-spacing:.04em;color:var(--cream);text-decoration:none}
-    .logo span{color:var(--gold)}
-    .topnav{display:flex;gap:2rem;list-style:none}
-    .topnav a{font-size:.78rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
-    .topnav a:hover{color:var(--gold-lt)}
-    .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 2rem 6rem;position:relative;overflow:hidden}
-    .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(184,150,46,.13) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 20% 80%,rgba(25,165,196,.08) 0%,transparent 60%),linear-gradient(180deg,#0a1628 0%,#061020 100%)}
-    .hero-content{position:relative;z-index:1;max-width:800px}
-    .hero-eyebrow{display:inline-flex;align-items:center;gap:.75rem;font-size:.72rem;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:2rem;animation:fadeUp .8s ease both}
-    .hero-eyebrow::before,.hero-eyebrow::after{content:'';display:block;width:32px;height:1px;background:var(--gold);opacity:.6}
-    .hero-title{font-family:var(--serif);font-size:clamp(3.5rem,9vw,7rem);font-weight:300;line-height:.95;letter-spacing:-.02em;color:var(--cream);margin-bottom:1.5rem;animation:fadeUp .8s .1s ease both}
-    .hero-title em{font-style:italic;font-weight:600;color:var(--gold-lt)}
-    .hero-sub{font-size:1.05rem;font-weight:300;color:var(--muted);max-width:540px;margin:0 auto 3rem;line-height:1.7;animation:fadeUp .8s .2s ease both}
-    .hero-cta-group{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .3s ease both}
-    .btn-primary{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2rem;background:var(--gold);color:var(--navy);font-family:var(--sans);font-size:.82rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-radius:var(--radius);transition:all .2s}
-    .btn-primary:hover{background:var(--gold-lt);transform:translateY(-2px);box-shadow:0 8px 24px rgba(184,150,46,.35)}
-    .btn-outline{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2rem;background:transparent;color:var(--cream);font-family:var(--sans);font-size:.82rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--line);border-radius:var(--radius);transition:all .2s}
-    .btn-outline:hover{border-color:var(--gold);color:var(--gold-lt);transform:translateY(-2px)}
-    .hero-stats{display:flex;gap:3rem;justify-content:center;margin-top:4rem;padding-top:3rem;border-top:1px solid var(--line);animation:fadeUp .8s .4s ease both}
-    .stat-num{font-family:var(--serif);font-size:2.8rem;font-weight:600;color:var(--gold-lt);line-height:1}
-    .stat-label{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:.4rem}
-    section{padding:5rem 2rem}
-    .section-inner{max-width:1200px;margin:0 auto}
-    .section-label{display:inline-flex;align-items:center;gap:.6rem;font-size:.68rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem}
-    .section-label::before{content:'';display:block;width:20px;height:1px;background:var(--gold)}
-    .section-title{font-family:var(--serif);font-size:clamp(2rem,4vw,3.2rem);font-weight:400;letter-spacing:-.015em;line-height:1.1;color:var(--cream);margin-bottom:1rem}
-    .section-title em{font-style:italic;color:var(--gold-lt)}
-    .section-desc{font-size:.97rem;font-weight:300;color:var(--muted);max-width:560px;line-height:1.7}
-    .divider{border:none;border-top:1px solid var(--line);margin:0}
-    #map-section{padding:0 0 5rem;background:var(--navy)}
-    .map-controls{padding:2.5rem 2rem 1.5rem;max-width:1200px;margin:0 auto;display:flex;align-items:flex-start;justify-content:space-between;gap:2rem;flex-wrap:wrap}
-    .filter-chips{display:flex;flex-wrap:wrap;gap:.5rem}
-    .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;font-family:var(--sans);font-size:.78rem;font-weight:500;letter-spacing:.06em;background:rgba(245,237,224,.06);color:var(--cream);border:1px solid var(--line);border-radius:999px;cursor:pointer;transition:all .18s;user-select:none}
-    .chip::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--chip-color);transition:transform .18s}
-    .chip[data-filter=snorkel]{--chip-color:var(--c-snorkel)}
-    .chip[data-filter=restaurant]{--chip-color:var(--c-resto)}
-    .chip[data-filter=hotel]{--chip-color:var(--c-hotel)}
-    .chip[data-filter=bezienswaardigheid]{--chip-color:var(--c-sight)}
-    .chip[data-filter=activiteit]{--chip-color:var(--c-act)}
-    .chip:hover{background:var(--gold-pale);border-color:var(--gold);color:var(--gold-lt)}
-    .chip.inactive{opacity:.35}
-    .chip.inactive::before{transform:scale(.6)}
-    .chip .ct{font-size:.68rem;color:var(--muted)}
-    .map-wrap{margin:0 2rem;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);box-shadow:0 32px 80px rgba(0,0,0,.6),0 0 0 1px rgba(184,150,46,.08)}
-    #map{height:560px;background:#0e1c30}
-    .leaflet-popup-content-wrapper{background:var(--navy-2);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:0 16px 40px rgba(0,0,0,.5)}
-    .leaflet-popup-tip-container{display:none}
-    .leaflet-popup-content{font-family:var(--sans);font-size:.875rem;color:var(--cream);margin:1rem 1.25rem;min-width:210px;max-width:280px;line-height:1.55}
-    .leaflet-popup-close-button{color:var(--muted)!important;font-size:18px!important;top:8px!important;right:10px!important}
-    .leaflet-control-attribution{background:rgba(10,22,40,.85)!important;color:var(--muted)!important;font-size:.65rem!important}
-    .leaflet-control-layers{background:var(--navy-2)!important;border:1px solid var(--line)!important;border-radius:var(--radius)!important;color:var(--cream)!important;font-family:var(--sans)!important;font-size:.8rem!important}
-    .popup-cat{display:inline-block;font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:.18rem .55rem;border-radius:3px;margin-bottom:.55rem;color:var(--navy)}
-    .popup-cat.snorkel{background:var(--c-snorkel)}
-    .popup-cat.restaurant{background:var(--c-resto);color:#fff}
-    .popup-cat.hotel{background:var(--c-hotel)}
-    .popup-cat.bezienswaardigheid{background:var(--c-sight);color:#fff}
-    .popup-cat.activiteit{background:var(--c-act)}
-    .popup-title{font-family:var(--serif);font-size:1.15rem;font-weight:600;line-height:1.2;margin-bottom:3px;color:var(--cream)}
-    .popup-stars{margin:4px 0 8px;letter-spacing:-1px}
-    .popup-desc{color:var(--muted);font-size:.82rem;line-height:1.5}
-    .popup-link{display:inline-block;margin-top:.7rem;color:var(--gold-lt);text-decoration:none;font-size:.75rem;font-weight:500;letter-spacing:.06em;border-bottom:1px solid rgba(184,150,46,.3);padding-bottom:1px;transition:border-color .15s}
-    .popup-link:hover{border-color:var(--gold-lt)}
-    .marker-dot{border-radius:50%;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer;transition:transform .15s,box-shadow .15s}
-    .marker-dot:hover{transform:scale(1.4);box-shadow:0 4px 16px rgba(0,0,0,.6)}
-    .marker-dot.snorkel{background:var(--c-snorkel)}
-    .marker-dot.restaurant{background:var(--c-resto)}
-    .marker-dot.hotel{background:var(--c-hotel)}
-    .marker-dot.bezienswaardigheid{background:var(--c-sight)}
-    .marker-dot.activiteit{background:var(--c-act)}
-    #gids-section{background:var(--navy-2);padding:5rem 2rem}
-    .cat-tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:2.5rem;overflow-x:auto;scrollbar-width:none}
-    .cat-tabs::-webkit-scrollbar{display:none}
-    .tab-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.5rem;font-family:var(--sans);font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;margin-bottom:-1px;transition:all .18s}
-    .tab-btn::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--tab-color)}
-    .tab-btn[data-tab=snorkel]{--tab-color:var(--c-snorkel)}
-    .tab-btn[data-tab=restaurant]{--tab-color:var(--c-resto)}
-    .tab-btn[data-tab=hotel]{--tab-color:var(--c-hotel)}
-    .tab-btn[data-tab=bezienswaardigheid]{--tab-color:var(--c-sight)}
-    .tab-btn[data-tab=activiteit]{--tab-color:var(--c-act)}
-    .tab-btn:hover{color:var(--cream)}
-    .tab-btn.active{color:var(--gold-lt);border-bottom-color:var(--gold)}
-    .tab-panel{display:none}
-    .tab-panel.active{display:block}
-    .poi-table{width:100%;border-collapse:collapse}
-    .poi-table thead tr{border-bottom:1px solid var(--line)}
-    .poi-table th{font-family:var(--sans);font-size:.65rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);padding:0 1rem .85rem;text-align:left}
-    .poi-table th:first-child{padding-left:0}
-    .poi-table tbody tr{border-bottom:1px solid rgba(184,150,46,.08);transition:background .15s;cursor:pointer}
-    .poi-table tbody tr:hover{background:var(--gold-pale)}
-    .poi-table tbody tr:last-child{border-bottom:none}
-    .poi-table td{padding:1.1rem 1rem;vertical-align:middle;font-size:.9rem;color:var(--cream)}
-    .poi-table td:first-child{padding-left:0}
-    .td-name{font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--cream)}
-    .td-stars{letter-spacing:-1px;white-space:nowrap}
-    .td-maps a{font-size:.72rem;color:var(--gold);text-decoration:none;letter-spacing:.06em;font-weight:500;border-bottom:1px solid rgba(184,150,46,.3);transition:color .15s;white-space:nowrap}
-    .td-maps a:hover{color:var(--gold-lt)}
-    footer{background:var(--navy);border-top:1px solid var(--line);padding:3rem 2rem}
-    .footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
-    .footer-brand{font-family:var(--serif);font-size:1.4rem;font-weight:600;color:var(--cream)}
-    .footer-brand span{color:var(--gold)}
-    .footer-meta{font-size:.78rem;color:var(--muted);line-height:1.8;text-align:right}
-    .footer-meta a{color:var(--gold-lt);text-decoration:none;font-weight:500;transition:color .15s}
-    .footer-meta a:hover{color:var(--white)}
-    .powered{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:500;letter-spacing:.06em;color:var(--muted);margin-top:1rem}
-    .powered a{color:var(--gold-lt)!important;text-decoration:none;font-weight:700}
-    .powered a:hover{color:var(--white)!important}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-    @media(max-width:768px){.topbar{padding:0 1.25rem}.topnav{display:none}.hero-stats{gap:1.5rem}.map-wrap{margin:0 1rem}.map-controls{padding:2rem 1.25rem 1rem}#map{height:420px}.footer-inner{flex-direction:column;text-align:center}.footer-meta{text-align:center}.hide-mob{display:none}}
+    :root {
+      --teal-deep:  #0A4A58;
+      --teal:       #0D6678;
+      --teal-mid:   #1A8499;
+      --teal-lt:    #E8F4F7;
+      --coral:      #D9694A;
+      --coral-lt:   #E8856A;
+      --ivory:      #FAFAF7;
+      --ivory-2:    #F2EDE4;
+      --ivory-3:    #E8E0D4;
+      --ink:        #1C1C1A;
+      --ink-soft:   rgba(28,28,26,.58);
+      --ink-muted:  rgba(28,28,26,.36);
+      --line:       rgba(28,28,26,.1);
+      --line-teal:  rgba(255,255,255,.15);
+
+      --c-snorkel:  #1A8499;
+      --c-resto:    #D9694A;
+      --c-hotel:    #7A6A5A;
+      --c-sight:    #5C8A60;
+      --c-act:      #7A7AAA;
+
+      --serif: 'Lora', Georgia, serif;
+      --sans:  'Plus Jakarta Sans', -apple-system, sans-serif;
+      --ease:  cubic-bezier(.22,.68,0,1.2);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--ivory); color: var(--ink); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem; height: 62px;
+      background: rgba(250,250,247,.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .logo { font-family: var(--serif); font-size: 1.35rem; font-weight: 500; color: var(--ink); text-decoration: none; letter-spacing: .01em; }
+    .logo em { font-style: italic; color: var(--teal); }
+    .topnav { display: flex; gap: 2rem; list-style: none; }
+    .topnav a { font-size: .75rem; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); text-decoration: none; transition: color .2s; }
+    .topnav a:hover { color: var(--teal); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 110px 2rem 6rem;
+      background: var(--ivory);
+      position: relative; overflow: hidden;
+    }
+
+    .hero::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 20%, rgba(13,102,120,.07) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 30% at 90% 85%, rgba(13,102,120,.05) 0%, transparent 55%);
+    }
+
+    /* Wave bottom — teal naar ivoor */
+    .hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 60px; background: var(--ivory);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+
+    .hero-glow { display: none; }
+    .hero-content { position: relative; z-index: 1; max-width: 700px; }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-size: .67rem; font-weight: 500; letter-spacing: .26em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 2.25rem;
+      opacity: 0; animation: up .7s .1s ease forwards;
+    }
+    .eyebrow::before, .eyebrow::after {
+      content: ''; display: block; width: 28px; height: 1px; background: var(--teal); opacity: .45;
+    }
+
+    h1 {
+      font-family: var(--serif); font-size: clamp(2.8rem,7vw,5.8rem);
+      font-weight: 400; line-height: 1.08; letter-spacing: -.02em; color: var(--ink);
+      margin-bottom: 1.75rem;
+      opacity: 0; animation: up .7s .18s ease forwards;
+    }
+    h1 em { font-style: italic; color: var(--teal); }
+
+    .hero-line {
+      width: 1px; height: 48px; background: var(--teal); opacity: .25;
+      margin: 0 auto 1.75rem;
+      opacity: 0; animation: up .6s .28s ease forwards;
+    }
+
+    .hero-sub {
+      font-size: 1.15rem; font-weight: 300; color: var(--ink-soft);
+      max-width: 440px; margin: 0 auto 2.75rem; line-height: 1.85;
+      opacity: 0; animation: up .7s .36s ease forwards;
+    }
+
+    .cta-row {
+      display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap;
+      opacity: 0; animation: up .7s .44s ease forwards;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .8rem 1.8rem; font-family: var(--sans); font-size: .76rem;
+      font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+      text-decoration: none; border-radius: 999px; transition: all .22s;
+    }
+    .btn-w { background: var(--teal-deep); color: #fff; }
+    .btn-w:hover { background: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(10,74,88,.25); }
+    .btn-o { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    .btn-o:hover { border-color: var(--teal); color: var(--teal); transform: translateY(-2px); }
+
+    .stats {
+      display: flex; gap: 3rem; justify-content: center;
+      margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--line);
+      opacity: 0; animation: up .7s .52s ease forwards;
+    }
+    .sn { font-family: var(--serif); font-size: 2.75rem; font-weight: 400; color: var(--teal); line-height: 1; }
+    .sl { font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-muted); margin-top: .4rem; }
+
+    /* ── SHARED ── */
+    hr { border: none; border-top: 1px solid var(--line); }
+    .wrap { max-width: 1180px; margin: 0 auto; }
+    .tag { font-size: .67rem; font-weight: 500; letter-spacing: .24em; text-transform: uppercase; color: var(--teal); display: block; margin-bottom: .85rem; }
+    .sh { font-family: var(--serif); font-size: clamp(1.85rem,3.5vw,2.8rem); font-weight: 400; line-height: 1.1; color: var(--ink); margin-bottom: .85rem; }
+    .sh em { font-style: italic; color: var(--teal); }
+    .sp { font-size: .95rem; font-weight: 300; color: var(--ink-soft); line-height: 1.8; max-width: 500px; }
+
+    /* ── MAP ── */
+    #ms { padding: 0 0 4.5rem; background: var(--ivory); }
+    .mh { padding: 3.5rem 2rem 1.75rem; max-width: 1180px; margin: 0 auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .chip {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .42rem .9rem; font-family: var(--sans); font-size: .74rem;
+      font-weight: 400; letter-spacing: .03em;
+      background: #fff; color: var(--ink); border: 1px solid var(--line);
+      border-radius: 999px; cursor: pointer; transition: all .18s; user-select: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    .chip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--cc); flex-shrink: 0; }
+    .chip[data-filter=snorkel]            { --cc: var(--c-snorkel); }
+    .chip[data-filter=restaurant]         { --cc: var(--c-resto); }
+    .chip[data-filter=hotel]              { --cc: var(--c-hotel); }
+    .chip[data-filter=bezienswaardigheid] { --cc: var(--c-sight); }
+    .chip[data-filter=activiteit]         { --cc: var(--c-act); }
+    .chip:hover { border-color: var(--teal-mid); color: var(--teal); }
+    .chip.off { opacity: .35; }
+    .chip .ct { font-size: .66rem; color: var(--ink-muted); }
+
+    .mf {
+      margin: 0 2rem; border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--line);
+      box-shadow: 0 2px 8px rgba(10,74,88,.06), 0 16px 48px rgba(10,74,88,.08);
+    }
+    #map { height: 580px; background: #c8dfe6; }
+
+    /* Leaflet */
+    .leaflet-popup-content-wrapper { background: var(--ivory); border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 8px 32px rgba(10,74,88,.15); }
+    .leaflet-popup-tip-container { display: none; }
+    .leaflet-popup-content { font-family: var(--sans); font-size: .875rem; color: var(--ink); margin: 1.1rem 1.25rem; min-width: 200px; max-width: 270px; line-height: 1.55; }
+    .leaflet-popup-close-button { color: var(--ink-muted) !important; top: 8px !important; right: 10px !important; }
+    .leaflet-control-attribution { background: rgba(250,250,247,.9) !important; color: var(--ink-muted) !important; font-size: .63rem !important; }
+    .leaflet-control-layers { background: var(--ivory) !important; border: 1px solid var(--line) !important; border-radius: 10px !important; font-family: var(--sans) !important; font-size: .8rem !important; color: var(--ink) !important; box-shadow: 0 4px 16px rgba(0,0,0,.08) !important; }
+
+    .pc { display: inline-block; font-size: .6rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; padding: .18rem .52rem; border-radius: 4px; margin-bottom: .5rem; }
+    .pc.snorkel            { background: rgba(26,132,153,.1); color: var(--c-snorkel); }
+    .pc.restaurant         { background: rgba(217,105,74,.1); color: var(--c-resto); }
+    .pc.hotel              { background: rgba(122,106,90,.1); color: var(--c-hotel); }
+    .pc.bezienswaardigheid { background: rgba(92,138,96,.1); color: var(--c-sight); }
+    .pc.activiteit         { background: rgba(122,122,170,.1); color: var(--c-act); }
+    .pn { font-family: var(--serif); font-size: 1.1rem; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+    .ps { margin: 4px 0 7px; letter-spacing: -1px; }
+    .pd { font-size: .8rem; color: var(--ink-soft); line-height: 1.5; font-weight: 300; }
+    .pl { display: inline-block; margin-top: .65rem; font-size: .73rem; color: var(--teal); text-decoration: none; font-weight: 500; border-bottom: 1px solid rgba(13,102,120,.25); padding-bottom: 1px; }
+    .pl:hover { color: var(--teal-mid); border-color: var(--teal-mid); }
+
+    .marker-dot { border-radius: 50%; border: 2.5px solid rgba(250,250,247,.9); box-shadow: 0 2px 8px rgba(0,0,0,.22); cursor: pointer; transition: transform .15s; }
+    .marker-dot:hover { transform: scale(1.35); }
+    .marker-dot.snorkel            { background: var(--c-snorkel); }
+    .marker-dot.restaurant         { background: var(--c-resto); }
+    .marker-dot.hotel              { background: var(--c-hotel); }
+    .marker-dot.bezienswaardigheid { background: var(--c-sight); }
+    .marker-dot.activiteit         { background: var(--c-act); }
+
+    /* ── GIDS ── */
+    #gs { background: var(--ivory-2); padding: 5.5rem 2rem; }
+
+    .tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 2.5rem; overflow-x: auto; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tb {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .75rem 1.3rem; font-family: var(--sans); font-size: .73rem; font-weight: 400;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted);
+      background: none; border: none; border-bottom: 2px solid transparent;
+      cursor: pointer; white-space: nowrap; margin-bottom: -1px; transition: all .18s;
+    }
+    .tb::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--tc); flex-shrink: 0; }
+    .tb[data-tab=snorkel]            { --tc: var(--c-snorkel); }
+    .tb[data-tab=restaurant]         { --tc: var(--c-resto); }
+    .tb[data-tab=hotel]              { --tc: var(--c-hotel); }
+    .tb[data-tab=bezienswaardigheid] { --tc: var(--c-sight); }
+    .tb[data-tab=activiteit]         { --tc: var(--c-act); }
+    .tb:hover { color: var(--ink); }
+    .tb.on { color: var(--teal); border-bottom-color: var(--teal); }
+
+    .pan { display: none; }
+    .pan.on { display: block; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 1px solid var(--ivory-3); }
+    th { font-size: .63rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-muted); padding: 0 1rem .8rem; text-align: left; }
+    th:first-child { padding-left: 0; }
+    tbody tr { border-bottom: 1px solid rgba(28,28,26,.045); cursor: pointer; transition: background .14s; }
+    tbody tr:hover { background: rgba(13,102,120,.04); }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: 1rem; vertical-align: middle; }
+    td:first-child { padding-left: 0; }
+    .tn { font-family: var(--serif); font-size: 1rem; font-weight: 500; color: var(--ink); }
+    .ts { letter-spacing: -1px; white-space: nowrap; }
+    .tdesc { font-size: .8rem; color: var(--ink-soft); line-height: 1.5; font-weight: 300; }
+    .tl a { font-size: .71rem; color: var(--teal); text-decoration: none; font-weight: 500; border-bottom: 1px solid rgba(13,102,120,.2); white-space: nowrap; }
+    .tl a:hover { color: var(--teal-mid); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--teal-deep); padding: 3.5rem 2rem; }
+    .fi { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+    .flogo { font-family: var(--serif); font-size: 1.4rem; font-weight: 400; color: rgba(255,255,255,.9); }
+    .flogo em { font-style: italic; color: rgba(255,255,255,.5); }
+    .fby { font-size: .77rem; color: rgba(255,255,255,.45); margin-top: .45rem; line-height: 1.7; }
+    .fby a { color: rgba(255,255,255,.65); text-decoration: none; }
+    .fby a:hover { color: #fff; }
+    .ppill {
+      display: inline-flex; align-items: center; gap: .4rem; margin-top: .65rem;
+      padding: .33rem .85rem; background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15); border-radius: 999px;
+      font-size: .72rem; color: rgba(255,255,255,.55);
+    }
+    .ppill a { color: rgba(255,255,255,.85); font-weight: 500; text-decoration: none; }
+    .ppill a:hover { color: #fff; }
+    .fr { font-size: .74rem; color: rgba(255,255,255,.38); text-align: right; line-height: 1.9; }
+    .fr a { color: rgba(255,255,255,.5); text-decoration: none; }
+    .fr a:hover { color: rgba(255,255,255,.85); }
+
+    @keyframes up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @media(max-width:768px) { .topbar{padding:0 1.25rem} .topnav{display:none} .mf{margin:0 1rem} #map{height:420px} .stats{gap:1.5rem} .mh{padding:2.5rem 1.25rem 1.25rem} .fi{flex-direction:column} .fr{text-align:left} .hm{display:none} }
   </style>
 </head>
 <body>
 
 <header class="topbar">
-  <a href="/" class="logo">Bon<span>airian</span></a>
+  <a href="/" class="logo">Bon<em>airian</em></a>
   <nav><ul class="topnav">
-    <li><a href="#map-section">Kaart</a></li>
-    <li><a href="#gids-section">Gids</a></li>
-    <li><a href="#gids-section">Snorkelen</a></li>
-    <li><a href="#gids-section">Restaurants</a></li>
-    <li><a href="#gids-section">Hotels</a></li>
+    <li><a href="#ms">Kaart</a></li>
+    <li><a href="#gs">Gids</a></li>
+    <li><a href="#gs">Snorkelen</a></li>
+    <li><a href="#gs">Restaurants</a></li>
+    <li><a href="#gs">Hotels</a></li>
   </ul></nav>
 </header>
 
 <section class="hero">
-  <div class="hero-bg" aria-hidden="true"></div>
   <div class="hero-content">
-    <div class="hero-eyebrow">Caribische Reisgids</div>
-    <h1 class="hero-title">Ontdek<br><em>Bonaire</em></h1>
-    <p class="hero-sub">De meest complete interactieve gids van Bonaire — van ongerepte koraalriffen tot de beste restaurants en luxe resorts, allemaal op één kaart.</p>
-    <div class="hero-cta-group">
-      <a href="#map-section" class="btn-primary">Verken de kaart &rarr;</a>
-      <a href="#gids-section" class="btn-outline">Bekijk de gids</a>
+    <div class="eyebrow">Bonairian</div>
+    <h1>Een eiland waar je<br>tot rust komt,<br>maar ook <em>thuis.</em></h1>
+    <div class="hero-line"></div>
+    <p class="hero-sub">Bekijk de echte Bonairian plekken.</p>
+    <div class="cta-row">
+      <a href="#ms" class="btn btn-w">Verken de kaart &rarr;</a>
+      <a href="#gs" class="btn btn-o">Bekijk de gids</a>
     </div>
-    <div class="hero-stats">
-      <div><div class="stat-num">60+</div><div class="stat-label">Locaties</div></div>
-      <div><div class="stat-num">5</div><div class="stat-label">Categorieën</div></div>
-      <div><div class="stat-num">86</div><div class="stat-label">Duikplekken</div></div>
-      <div><div class="stat-num">24km</div><div class="stat-label">Eilandlengte</div></div>
+    <div class="stats">
+      <div><div class="sn">60+</div><div class="sl">Locaties</div></div>
+      <div><div class="sn">5</div><div class="sl">Categorieën</div></div>
+      <div><div class="sn">86</div><div class="sl">Duikplekken</div></div>
+      <div><div class="sn">24 km</div><div class="sl">Eilandlengte</div></div>
     </div>
   </div>
 </section>
 
-<hr class="divider">
-
-<section id="map-section" style="padding:0 0 5rem;background:var(--navy)">
-  <div class="map-controls">
+<section id="ms" style="padding:0 0 4.5rem;background:var(--ivory)">
+  <div class="mh">
     <div>
-      <div class="section-label">Interactieve kaart</div>
-      <h2 class="section-title">Alle <em>bezienswaardigheden</em><br>in één overzicht</h2>
+      <span class="tag">Interactieve kaart</span>
+      <h2 class="sh">Alle plekken op <em>één kaart</em></h2>
     </div>
-    <div class="filter-chips">
-      <button class="chip" data-filter="snorkel">Snorkelen &amp; Duiken <span class="ct"></span></button>
+    <div class="chips">
+      <button class="chip" data-filter="snorkel">Snorkelen <span class="ct"></span></button>
       <button class="chip" data-filter="restaurant">Restaurants <span class="ct"></span></button>
       <button class="chip" data-filter="hotel">Hotels <span class="ct"></span></button>
       <button class="chip" data-filter="bezienswaardigheid">Bezienswaardigheden <span class="ct"></span></button>
       <button class="chip" data-filter="activiteit">Activiteiten <span class="ct"></span></button>
     </div>
   </div>
-  <div class="map-wrap">
-    <div id="map"></div>
-  </div>
-  <p style="text-align:center;margin-top:1rem;font-size:.75rem;color:var(--muted);letter-spacing:.06em">
-    Klik op een marker voor informatie &middot; Satellietweergave beschikbaar rechtsboven &middot; Grotere markers = hogere beoordeling
+  <div class="mf"><div id="map"></div></div>
+  <p style="text-align:center;margin-top:1.1rem;font-size:.72rem;color:var(--ink-muted);letter-spacing:.05em">
+    Klik op een pin voor info &middot; Satellietweergave rechtsboven &middot; Grotere pins = hogere beoordeling
   </p>
 </section>
 
-<hr class="divider">
+<hr>
 
-<section id="gids-section" style="background:var(--navy-2);padding:5rem 2rem">
-  <div class="section-inner">
-    <div class="section-label">Volledige gids</div>
-    <h2 class="section-title">Alle locaties<br>op <em>een rij</em></h2>
-    <p class="section-desc" style="margin-bottom:2.5rem">Van ongerepte snorkelplekken tot culinaire highlights — gefilterd op categorie, gesorteerd op beoordeling. Klik op een rij om de locatie op de kaart te openen.</p>
-    <div class="cat-tabs" role="tablist">
-      <button class="tab-btn active" data-tab="snorkel" role="tab">Snorkelen &amp; Duiken</button>
-      <button class="tab-btn" data-tab="restaurant" role="tab">Restaurants</button>
-      <button class="tab-btn" data-tab="hotel" role="tab">Hotels</button>
-      <button class="tab-btn" data-tab="bezienswaardigheid" role="tab">Bezienswaardigheden</button>
-      <button class="tab-btn" data-tab="activiteit" role="tab">Activiteiten</button>
+<section id="gs" style="background:var(--ivory-2);padding:5.5rem 2rem">
+  <div class="wrap">
+    <span class="tag">Volledige gids</span>
+    <h2 class="sh">Alle locaties op <em>een rij</em></h2>
+    <p class="sp" style="margin-bottom:2.75rem">Van ongerepte snorkelplekken tot culinaire highlights. Klik op een rij om de locatie direct op de kaart te zien.</p>
+    <div class="tabs" role="tablist">
+      <button class="tb on" data-tab="snorkel">Snorkelen &amp; Duiken</button>
+      <button class="tb" data-tab="restaurant">Restaurants</button>
+      <button class="tb" data-tab="hotel">Hotels</button>
+      <button class="tb" data-tab="bezienswaardigheid">Bezienswaardigheden</button>
+      <button class="tb" data-tab="activiteit">Activiteiten</button>
     </div>
-    <div id="table-container"></div>
+    <div id="tc"></div>
   </div>
 </section>
 
-<hr class="divider">
+<hr>
 
 <footer>
-  <div class="footer-inner">
+  <div class="fi">
     <div>
-      <div class="footer-brand">Bon<span>airian</span></div>
-      <p style="font-size:.78rem;color:var(--muted);margin-top:.5rem;max-width:320px;line-height:1.6">De meest complete interactieve gids van Bonaire. Klik, ontdek en plan je perfecte reis.</p>
-      <div class="powered">
-        <span>⚡</span>
-        SEO powered by <a href="https://rankbird.com" target="_blank" rel="noopener dofollow">RankBird.com</a>
-      </div>
+      <div class="flogo">Bon<em>airian</em></div>
+      <p class="fby">De meest complete interactieve gids van Bonaire.<br>Klik, ontdek en plan je perfecte reis.</p>
+      <div class="ppill">⚡ SEO powered by <a href="https://rankbird.com" target="_blank" rel="noopener dofollow">RankBird.com</a></div>
     </div>
-    <div class="footer-meta">
+    <div class="fr">
       <div>&copy; 2025 Bonairian &middot; Alle rechten voorbehouden</div>
-      <div style="margin-top:.4rem">Kaartdata: <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a> &middot; <a href="https://carto.com" target="_blank" rel="noopener">CARTO</a> &middot; <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a></div>
-      <div style="margin-top:.4rem">Gebouwd met <a href="https://rankbird.com" target="_blank" rel="noopener dofollow">RankBird</a> &mdash; SEO content voor Shopify &amp; web</div>
+      <div>Kaartdata: <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a> &middot; <a href="https://carto.com" target="_blank" rel="noopener">CARTO</a> &middot; <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a></div>
+      <div>Gebouwd met <a href="https://rankbird.com" target="_blank" rel="noopener dofollow">RankBird</a></div>
     </div>
   </div>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-const POIS=[
-  {cat:'snorkel',stars:5,name:'1000 Steps',coords:[12.2207,-68.3562],desc:'Iconisch — 67 treden naar prachtig koraalrif met schildpadden, grote rifwanden en kleurrijke sponzen.'},
-  {cat:'snorkel',stars:5,name:'Karpata',coords:[12.2289,-68.3589],desc:'Een van de mooiste rifhellingen van Bonaire. Steile drop-off met enorme koraalkolonies en adelaarsroggen.'},
-  {cat:'snorkel',stars:5,name:'Salt Pier',coords:[12.1054,-68.2826],desc:'Kathedraal van licht onder de zoutpier. Barracuda, tarpon en pijlinktvissen. Alleen toegankelijk zonder schip.'},
-  {cat:'snorkel',stars:5,name:'Bari Reef',coords:[12.1746,-68.2966],desc:'Bij Buddy Dive / Sand Dollar. Hoogste vissoort-diversiteit van het Caribisch gebied — 300+ soorten.'},
-  {cat:'snorkel',stars:5,name:'Alice in Wonderland',coords:[12.0968,-68.2815],desc:'Dubbel rif aan de zuidkust met kolossale koraalkoppen. Spectaculair voor gevorderde snorkelaars.'},
-  {cat:'snorkel',stars:5,name:'Klein Bonaire',coords:[12.1578,-68.3142],desc:'Onbewoond eilandje, alleen per boot bereikbaar. Ongerept rif rondom — absoluut een must-do.'},
-  {cat:'snorkel',stars:4,name:'Andrea I & II',coords:[12.1852,-68.3022],desc:'Twee aangrenzende stekken met eenvoudige instap en gezond koraal — populair bij snorkelaars.'},
-  {cat:'snorkel',stars:4,name:'Pink Beach',coords:[12.0738,-68.2718],desc:'Zacht roze koraalzand en glashelder ondiep water. Ideaal voor ontspannen snorkelen op de zuidkust.'},
-  {cat:'snorkel',stars:4,name:'Boka Slagbaai',coords:[12.2746,-68.4112],desc:'Dramatische baai in Washington Slagbaai NP. Spectaculair rif met schildpadden en grote koraalformaties.'},
-  {cat:'snorkel',stars:4,name:'Wayaka II',coords:[12.2834,-68.4078],desc:'Afgelegen plek in het noordpark. Ongerept, rustig — grote vissen inclusief horseyejacks.'},
-  {cat:'snorkel',stars:4,name:'Something Special',coords:[12.1618,-68.2824],desc:'Bekend om het zandvlak met tuinaal-kolonies en octopussen. Bijzonder bij schemering.'},
-  {cat:'snorkel',stars:4,name:"Tori's Reef",coords:[12.0862,-68.2778],desc:'Rustige zuidelijke plek met zeegras-velden, schildpadden en vlak wit zand.'},
-  {cat:'snorkel',stars:3,name:'Calabas Reef',coords:[12.1485,-68.2812],desc:'Huisrif van Divi Flamingo, vlak bij de boulevard. Toegankelijk voor beginners, levendig rifje.'},
-  {cat:'snorkel',stars:3,name:'Te Amo Beach',coords:[12.1310,-68.2680],desc:'Vlak naast de luchthaven. Eenvoudige instap, levendig huisrif. Vliegtuigen landen vlak over je hoofd.'},
-  {cat:'restaurant',stars:5,name:'Brass Boer Bonaire',coords:[12.1519,-68.2773],desc:'Sterrenrestaurant van de gebroeders Boer. Caribisch-Nederlandse fusie met uitzicht op zee. Reserveren verplicht.'},
-  {cat:'restaurant',stars:4,name:'At Sea',coords:[12.1516,-68.2771],desc:'Fine dining aan zee — moderne creatieve keuken met verse lokale vis. Een van de beste op het eiland.'},
-  {cat:'restaurant',stars:4,name:'Capriccio',coords:[12.1509,-68.2774],desc:'Klassiek Italiaans op de boulevard. Verse pasta, indrukwekkende wijnkaart, gezellige sfeer.'},
-  {cat:'restaurant',stars:4,name:"Sebastian's",coords:[12.1501,-68.2772],desc:'Internationaal-Caribisch met sfeervol terras. Vis, vlees, lokale gerechten en goede cocktails.'},
-  {cat:'restaurant',stars:4,name:"Karel's Beach Bar",coords:[12.1527,-68.2762],desc:'Iconische pier-bar op het water in Kralendijk. Cocktails boven zee — het adres voor zonsondergang.'},
-  {cat:'restaurant',stars:4,name:'La Cantina (Cuba Compagnie)',coords:[12.1491,-68.2769],desc:'Cubaans-Caribisch restaurant met live muziek, tapas, cocktails en sigaren. Geweldige sfeer.'},
-  {cat:'restaurant',stars:4,name:'Spice Beach Club',coords:[12.1683,-68.2844],desc:'Strandrestaurant bij Eden Beach. Zonsondergangen, cocktails en relaxed dineren met voeten in het zand.'},
-  {cat:'restaurant',stars:4,name:'Ingridients',coords:[12.1512,-68.2771],desc:'Verfijnde seizoenskeuken in intieme setting. Creatief en vers, goede vegetarische opties.'},
-  {cat:'restaurant',stars:4,name:'Posada Para Mira',coords:[12.2178,-68.3545],desc:'Lokale Bonairiaanse keuken in Rincon. Geitenstoof, funchi en stoofvlees met uitzicht over het dorp.'},
-  {cat:'restaurant',stars:3,name:'It Rains Fishes',coords:[12.1505,-68.2773],desc:'Vis & schelpdieren aan de boulevard. Populaire klassieker — goed voor verse vangst.'},
-  {cat:'restaurant',stars:3,name:'Mona Lisa',coords:[12.1497,-68.2776],desc:'Gezellige bistro/bar met Europese keuken — ouderwetse charme, trouwe stamgasten.'},
-  {cat:'restaurant',stars:3,name:"Donna & Giorgio's",coords:[12.1484,-68.2765],desc:'Italiaans, geliefd bij vaste gasten — terras in de tuin, klassieke pasta en risotto.'},
-  {cat:'hotel',stars:5,name:'Harbour Village Beach Club',coords:[12.1676,-68.2823],desc:'Het meest luxueuze resort van Bonaire. Privé-strand, jachthaven, spa en duikcentrum.'},
-  {cat:'hotel',stars:5,name:'Buddy Dive Resort',coords:[12.1746,-68.2966],desc:'Duikfanaten-favoriet met huisrif Bari Reef en drive-thru tankstation. Ongeslagen duikinfrastructuur.'},
-  {cat:'hotel',stars:4,name:"Captain Don's Habitat",coords:[12.1694,-68.2893],desc:'Legendarisch duikresort opgericht door duikpionier Don Stewart. Alle kamers oceaanzicht, eigen pier.'},
-  {cat:'hotel',stars:4,name:'Delfins Beach Resort',coords:[12.1710,-68.2898],desc:'Familieresort met zandstrand, zwembaden en eigen huisrif. Goede combinatie van rust en faciliteiten.'},
-  {cat:'hotel',stars:4,name:'Sand Dollar Condominium',coords:[12.1752,-68.2970],desc:'Appartementen-resort naast Buddy Dive. Eigen keuken, ideaal voor families en lange verblijven.'},
-  {cat:'hotel',stars:4,name:'Eden Beach Resort',coords:[12.1683,-68.2844],desc:'Casual strandresort met Spice Beach Club restaurant. Goede prijs/kwaliteit verhouding.'},
-  {cat:'hotel',stars:4,name:'Bellafonte Luxury Oceanfront',coords:[12.1432,-68.2731],desc:'Boutique appartementen direct aan zee. Klein en chic, populair voor langere verblijven.'},
-  {cat:'hotel',stars:4,name:'Sorobon Beach Resort',coords:[12.1006,-68.2302],desc:'Aan windsurf-mekka Lac Bay. Bungalows op het strand, ideaal voor watersporters.'},
-  {cat:'hotel',stars:4,name:'Van der Valk Plaza',coords:[12.1404,-68.2714],desc:'Resort met meerdere zwembaden, restaurants, eigen pier en privé-zandstrand.'},
-  {cat:'hotel',stars:4,name:'Bamboo Bali Bonaire',coords:[12.1823,-68.2545],desc:'Adults-only boutique B&B in Aziatische stijl. Rustig, intiem, prachtig tuinterrein.'},
-  {cat:'hotel',stars:3,name:'Plaza Beach Resort',coords:[12.1418,-68.2712],desc:'All-inclusive beachresort aan de zuidkant van Kralendijk met privéstrand.'},
-  {cat:'hotel',stars:3,name:'Courtyard by Marriott Bonaire',coords:[12.1495,-68.2739],desc:'Modern Marriott-resort vlak bij het centrum van Kralendijk.'},
-  {cat:'hotel',stars:3,name:'Resort Bonaire',coords:[12.1487,-68.2731],desc:'Stadsresort in het hart van Kralendijk — wandelafstand tot de boulevard en restaurants.'},
-  {cat:'bezienswaardigheid',stars:5,name:'Washington Slagbaai NP',coords:[12.2885,-68.3745],desc:'Het grote noordelijke natuurpark — ruige kust, flamingo-meer Goto, klifroutes en Brandaris (241m).'},
-  {cat:'bezienswaardigheid',stars:5,name:'Pekelmeer Flamingo Sanctuary',coords:[12.0490,-68.2450],desc:'Een van vier broedgebieden ter wereld voor Caribische flamingo. Observeer honderden vogels vanaf de weg.'},
-  {cat:'bezienswaardigheid',stars:5,name:'Goto Meer',coords:[12.2583,-68.3912],desc:"Zout meer in Washington Slagbaai NP, dagelijks vol flamingo's. De mooiste drive van het eiland."},
-  {cat:'bezienswaardigheid',stars:4,name:'Slavenhuisjes Wit',coords:[12.0446,-68.2694],desc:'Aangrijpende zoutslaven-onderkomens uit 1850. Slechts 90cm hoog — indrukwekkend historisch erfgoed.'},
-  {cat:'bezienswaardigheid',stars:4,name:'Slavenhuisjes Rood',coords:[12.0611,-68.2719],desc:'Tweede cluster slavenhuisjes bij de Rode Pan zoutvlakten. Onderdeel van het UNESCO-erfgoedtraject.'},
-  {cat:'bezienswaardigheid',stars:4,name:'Zoutpiramides',coords:[12.0785,-68.2690],desc:'Hagelwitte zoutbergen naast het Pekelmeer — een surreeel en fotogeniek landschap.'},
-  {cat:'bezienswaardigheid',stars:4,name:'Willemstoren Vuurtoren',coords:[12.0184,-68.2368],desc:'Oudste vuurtoren van het eiland (1837), aan de meest zuidelijke punt. Eenzame, robuuste schoonheid.'},
-  {cat:'bezienswaardigheid',stars:4,name:'Rincon — oudste dorp',coords:[12.2178,-68.3551],desc:'Oudste nederzetting van Bonaire (1527). Levendige zaterdagmarkt, lokale kunst en Cadushy-distilleerderij.'},
-  {cat:'bezienswaardigheid',stars:4,name:'Cadushy Distilleerderij',coords:[12.2165,-68.3568],desc:'Lokale distillery in Rincon met cactuslikeur en rum-proeverijen. Uniek Bonairiaans product.'},
-  {cat:'bezienswaardigheid',stars:4,name:'Mangrove Info Center',coords:[12.1085,-68.2340],desc:'Kayaktours door het beschermde mangrovewoud van Lac Bay. Zeesterren, juveniele vissen en vogels.'},
-  {cat:'bezienswaardigheid',stars:4,name:'Donkey Sanctuary',coords:[12.1572,-68.2595],desc:'Opvang voor verlaten Bonairiaanse ezels — rijd langzaam erdoorheen en voer ze gerust.'},
-  {cat:'bezienswaardigheid',stars:4,name:'Seru Largu (uitkijkpunt)',coords:[12.1830,-68.2613],desc:'Hoog uitkijkpunt met panorama over Kralendijk, Klein Bonaire en de zee. Spectaculair bij zonsondergang.'},
-  {cat:'bezienswaardigheid',stars:4,name:'Boka Onima — rotstekeningen',coords:[12.2627,-68.3024],desc:'Pre-Columbiaanse rotstekeningen van de Caquetio-bevolking (1000+ jaar oud) in een beschutte baai.'},
-  {cat:'bezienswaardigheid',stars:3,name:'Fort Oranje',coords:[12.1498,-68.2769],desc:'17e-eeuws fort midden in Kralendijk. Historisch en fotogeniek met kanonnen aan de waterkant.'},
-  {cat:'bezienswaardigheid',stars:3,name:'Wilhelminapark',coords:[12.1502,-68.2778],desc:'Klein park aan de boulevard — aangenaam wandelen langs koloniale architectuur.'},
-  {cat:'bezienswaardigheid',stars:3,name:'Lac Cai',coords:[12.1076,-68.2265],desc:'Lokale ontmoetingsplek aan de oostkust. Simpele lunch, conch-schelpenbergen en zondagse muziek.'},
-  {cat:'activiteit',stars:5,name:'Sorobon Beach — windsurf & kite',coords:[12.1006,-68.2302],desc:'Wereldberoemde windsurfspot met ondiep plat water en constante passaatwind. Diverse scholen aanwezig.'},
-  {cat:'activiteit',stars:5,name:'Lac Bay',coords:[12.0980,-68.2280],desc:'Uitgestrekte beschermde baai — ideaal voor beginners op windsurf, SUP en kajak. Unieke natuur.'},
-  {cat:'activiteit',stars:5,name:'Brandaris hike',coords:[12.2870,-68.4015],desc:'Beklimming van de hoogste piek (241m) in Washington Slagbaai NP. Zwaar maar fenomenaal uitzicht.'},
-  {cat:'activiteit',stars:5,name:'Klein Bonaire watertaxi',coords:[12.1527,-68.2762],desc:"Watertaxi vanaf Karel's Pier naar Klein Bonaire — een dag snorkelen op het mooiste rif van Bonaire."},
-  {cat:'activiteit',stars:4,name:'Mangrove kayak tour',coords:[12.1085,-68.2340],desc:'Geleide kayaktours door de mangroves van Lac Bay — uniek ecosysteem met zeesterren en vogels.'},
-  {cat:'activiteit',stars:4,name:'Atlantis kitesurfspot',coords:[12.0858,-68.2788],desc:'Aan de zuidwestkust — gevorderde kitesurfspot met lange downwinders langs de kust.'},
-  {cat:'activiteit',stars:4,name:'Subi Brandaris MTB',coords:[12.2850,-68.3950],desc:'Een van de mooiste mountainbike-routes — door cactusvlakten, heuvels en langs de kust.'},
-  {cat:'activiteit',stars:3,name:'Te Amo SUP / kayak',coords:[12.1310,-68.2680],desc:'Rustige instap voor SUP en kajak vlak bij de luchthaven. Goed voor beginners.'},
-  {cat:'activiteit',stars:3,name:'Bonaire Adventure Tours',coords:[12.1480,-68.2730],desc:'Lokale aanbieder van avonturen-tours — kajakken, off-road rijden en natuur-excursies.'},
+const P=[
+  {cat:'snorkel',s:5,n:'1000 Steps',c:[12.2207,-68.3562],d:'Iconisch — 67 treden naar prachtig koraalrif met schildpadden, grote rifwanden en kleurrijke sponzen.'},
+  {cat:'snorkel',s:5,n:'Karpata',c:[12.2289,-68.3589],d:'Een van de mooiste rifhellingen van Bonaire. Steile drop-off met enorme koraalkolonies en adelaarsroggen.'},
+  {cat:'snorkel',s:5,n:'Salt Pier',c:[12.1054,-68.2826],d:'Kathedraal van licht onder de zoutpier. Barracuda, tarpon en pijlinktvissen. Alleen toegankelijk zonder schip.'},
+  {cat:'snorkel',s:5,n:'Bari Reef',c:[12.1746,-68.2966],d:'Bij Buddy Dive / Sand Dollar. Hoogste vissoort-diversiteit van het Caribisch gebied — 300+ soorten.'},
+  {cat:'snorkel',s:5,n:'Alice in Wonderland',c:[12.0968,-68.2815],d:'Dubbel rif aan de zuidkust met kolossale koraalkoppen. Spectaculair voor gevorderde snorkelaars.'},
+  {cat:'snorkel',s:5,n:'Klein Bonaire',c:[12.1578,-68.3142],d:'Onbewoond eilandje, alleen per boot bereikbaar. Ongerept rif rondom — absoluut een must-do.'},
+  {cat:'snorkel',s:4,n:'Andrea I & II',c:[12.1852,-68.3022],d:'Twee aangrenzende stekken met eenvoudige instap en gezond koraal — populair bij snorkelaars.'},
+  {cat:'snorkel',s:4,n:'Pink Beach',c:[12.0738,-68.2718],d:'Zacht roze koraalzand en glashelder ondiep water. Ideaal voor ontspannen snorkelen op de zuidkust.'},
+  {cat:'snorkel',s:4,n:'Boka Slagbaai',c:[12.2746,-68.4112],d:'Dramatische baai in Washington Slagbaai NP. Spectaculair rif met schildpadden en grote koraalformaties.'},
+  {cat:'snorkel',s:4,n:'Wayaka II',c:[12.2834,-68.4078],d:'Afgelegen plek in het noordpark. Ongerept, rustig — grote vissen inclusief horseyejacks.'},
+  {cat:'snorkel',s:4,n:'Something Special',c:[12.1618,-68.2824],d:'Bekend om het zandvlak met tuinaal-kolonies en octopussen. Bijzonder bij schemering.'},
+  {cat:'snorkel',s:4,n:"Tori's Reef",c:[12.0862,-68.2778],d:'Rustige zuidelijke plek met zeegras-velden, schildpadden en vlak wit zand.'},
+  {cat:'snorkel',s:3,n:'Calabas Reef',c:[12.1485,-68.2812],d:'Huisrif van Divi Flamingo, vlak bij de boulevard. Toegankelijk voor beginners, levendig rifje.'},
+  {cat:'snorkel',s:3,n:'Te Amo Beach',c:[12.1310,-68.2680],d:'Vlak naast de luchthaven. Eenvoudige instap, levendig huisrif. Vliegtuigen landen vlak over je hoofd.'},
+  {cat:'restaurant',s:5,n:'Brass Boer Bonaire',c:[12.1519,-68.2773],d:'Sterrenrestaurant van de gebroeders Boer. Caribisch-Nederlandse fusie met uitzicht op zee. Reserveren verplicht.'},
+  {cat:'restaurant',s:4,n:'At Sea',c:[12.1516,-68.2771],d:'Fine dining aan zee — moderne creatieve keuken met verse lokale vis. Een van de beste op het eiland.'},
+  {cat:'restaurant',s:4,n:'Capriccio',c:[12.1509,-68.2774],d:'Klassiek Italiaans op de boulevard. Verse pasta, indrukwekkende wijnkaart, gezellige sfeer.'},
+  {cat:'restaurant',s:4,n:"Sebastian's",c:[12.1501,-68.2772],d:'Internationaal-Caribisch met sfeervol terras. Vis, vlees, lokale gerechten en goede cocktails.'},
+  {cat:'restaurant',s:4,n:"Karel's Beach Bar",c:[12.1527,-68.2762],d:'Iconische pier-bar op het water in Kralendijk. Cocktails boven zee — het adres voor zonsondergang.'},
+  {cat:'restaurant',s:4,n:'La Cantina (Cuba Compagnie)',c:[12.1491,-68.2769],d:'Cubaans-Caribisch restaurant met live muziek, tapas, cocktails en sigaren. Geweldige sfeer.'},
+  {cat:'restaurant',s:4,n:'Spice Beach Club',c:[12.1683,-68.2844],d:'Strandrestaurant bij Eden Beach. Zonsondergangen, cocktails en relaxed dineren met voeten in het zand.'},
+  {cat:'restaurant',s:4,n:'Ingridients',c:[12.1512,-68.2771],d:'Verfijnde seizoenskeuken in intieme setting. Creatief en vers, goede vegetarische opties.'},
+  {cat:'restaurant',s:4,n:'Posada Para Mira',c:[12.2178,-68.3545],d:'Lokale Bonairiaanse keuken in Rincon. Geitenstoof, funchi en stoofvlees met uitzicht over het dorp.'},
+  {cat:'restaurant',s:3,n:'It Rains Fishes',c:[12.1505,-68.2773],d:'Vis & schelpdieren aan de boulevard. Populaire klassieker — goed voor verse vangst.'},
+  {cat:'restaurant',s:3,n:'Mona Lisa',c:[12.1497,-68.2776],d:'Gezellige bistro/bar met Europese keuken — ouderwetse charme, trouwe stamgasten.'},
+  {cat:'restaurant',s:3,n:"Donna & Giorgio's",c:[12.1484,-68.2765],d:'Italiaans, geliefd bij vaste gasten — terras in de tuin, klassieke pasta en risotto.'},
+  {cat:'hotel',s:5,n:'Harbour Village Beach Club',c:[12.1676,-68.2823],d:'Het meest luxueuze resort van Bonaire. Privé-strand, jachthaven, spa en duikcentrum.'},
+  {cat:'hotel',s:5,n:'Buddy Dive Resort',c:[12.1746,-68.2966],d:'Duikfanaten-favoriet met huisrif Bari Reef en drive-thru tankstation. Ongeslagen duikinfrastructuur.'},
+  {cat:'hotel',s:4,n:"Captain Don's Habitat",c:[12.1694,-68.2893],d:'Legendarisch duikresort opgericht door duikpionier Don Stewart. Alle kamers oceaanzicht, eigen pier.'},
+  {cat:'hotel',s:4,n:'Delfins Beach Resort',c:[12.1710,-68.2898],d:'Familieresort met zandstrand, zwembaden en eigen huisrif. Goede combinatie van rust en faciliteiten.'},
+  {cat:'hotel',s:4,n:'Sand Dollar Condominium',c:[12.1752,-68.2970],d:'Appartementen-resort naast Buddy Dive. Eigen keuken, ideaal voor families en lange verblijven.'},
+  {cat:'hotel',s:4,n:'Eden Beach Resort',c:[12.1683,-68.2844],d:'Casual strandresort met Spice Beach Club restaurant. Goede prijs/kwaliteit verhouding.'},
+  {cat:'hotel',s:4,n:'Bellafonte Luxury Oceanfront',c:[12.1432,-68.2731],d:'Boutique appartementen direct aan zee. Klein en chic, populair voor langere verblijven.'},
+  {cat:'hotel',s:4,n:'Sorobon Beach Resort',c:[12.1006,-68.2302],d:'Aan windsurf-mekka Lac Bay. Bungalows op het strand, ideaal voor watersporters.'},
+  {cat:'hotel',s:4,n:'Van der Valk Plaza',c:[12.1404,-68.2714],d:'Resort met meerdere zwembaden, restaurants, eigen pier en privé-zandstrand.'},
+  {cat:'hotel',s:4,n:'Bamboo Bali Bonaire',c:[12.1823,-68.2545],d:'Adults-only boutique B&B in Aziatische stijl. Rustig, intiem, prachtig tuinterrein.'},
+  {cat:'hotel',s:3,n:'Plaza Beach Resort',c:[12.1418,-68.2712],d:'All-inclusive beachresort aan de zuidkant van Kralendijk met privéstrand.'},
+  {cat:'hotel',s:3,n:'Courtyard by Marriott Bonaire',c:[12.1495,-68.2739],d:'Modern Marriott-resort vlak bij het centrum van Kralendijk.'},
+  {cat:'hotel',s:3,n:'Resort Bonaire',c:[12.1487,-68.2731],d:'Stadsresort in het hart van Kralendijk — wandelafstand tot de boulevard en restaurants.'},
+  {cat:'bezienswaardigheid',s:5,n:'Washington Slagbaai NP',c:[12.2885,-68.3745],d:'Het grote noordelijke natuurpark — ruige kust, flamingo-meer Goto, klifroutes en Brandaris (241m).'},
+  {cat:'bezienswaardigheid',s:5,n:'Pekelmeer Flamingo Sanctuary',c:[12.0490,-68.2450],d:'Een van vier broedgebieden ter wereld voor Caribische flamingo. Honderden vogels — observeer vanaf de weg.'},
+  {cat:'bezienswaardigheid',s:5,n:'Goto Meer',c:[12.2583,-68.3912],d:"Zout meer in Washington Slagbaai NP, dagelijks vol flamingo's. De mooiste drive van het eiland."},
+  {cat:'bezienswaardigheid',s:4,n:'Slavenhuisjes Wit',c:[12.0446,-68.2694],d:'Aangrijpende zoutslaven-onderkomens uit 1850. Slechts 90cm hoog — indrukwekkend historisch erfgoed.'},
+  {cat:'bezienswaardigheid',s:4,n:'Slavenhuisjes Rood',c:[12.0611,-68.2719],d:'Tweede cluster slavenhuisjes bij de Rode Pan. Onderdeel van het UNESCO-erfgoedtraject.'},
+  {cat:'bezienswaardigheid',s:4,n:'Zoutpiramides',c:[12.0785,-68.2690],d:'Hagelwitte zoutbergen naast het Pekelmeer — een surreel en fotogeniek landschap.'},
+  {cat:'bezienswaardigheid',s:4,n:'Willemstoren Vuurtoren',c:[12.0184,-68.2368],d:'Oudste vuurtoren van het eiland (1837), aan de meest zuidelijke punt.'},
+  {cat:'bezienswaardigheid',s:4,n:'Rincon — oudste dorp',c:[12.2178,-68.3551],d:'Oudste nederzetting van Bonaire (1527). Zaterdagmarkt, lokale kunst en Cadushy-distilleerderij.'},
+  {cat:'bezienswaardigheid',s:4,n:'Cadushy Distilleerderij',c:[12.2165,-68.3568],d:'Lokale distillery in Rincon met cactuslikeur en rum-proeverijen.'},
+  {cat:'bezienswaardigheid',s:4,n:'Mangrove Info Center',c:[12.1085,-68.2340],d:'Kayaktours door het beschermde mangrovewoud van Lac Bay. Zeesterren en juveniele vissen.'},
+  {cat:'bezienswaardigheid',s:4,n:'Donkey Sanctuary',c:[12.1572,-68.2595],d:'Opvang voor verlaten Bonairiaanse ezels — rijd langzaam erdoorheen en voer ze gerust.'},
+  {cat:'bezienswaardigheid',s:4,n:'Seru Largu uitkijkpunt',c:[12.1830,-68.2613],d:'Panorama over Kralendijk, Klein Bonaire en de zee. Spectaculair bij zonsondergang.'},
+  {cat:'bezienswaardigheid',s:4,n:'Boka Onima rotstekeningen',c:[12.2627,-68.3024],d:'Pre-Columbiaanse rotstekeningen van de Caquetio-bevolking (1000+ jaar oud).'},
+  {cat:'bezienswaardigheid',s:3,n:'Fort Oranje',c:[12.1498,-68.2769],d:'17e-eeuws fort midden in Kralendijk. Historisch en fotogeniek met kanonnen aan de waterkant.'},
+  {cat:'bezienswaardigheid',s:3,n:'Wilhelminapark',c:[12.1502,-68.2778],d:'Klein park aan de boulevard — aangenaam wandelen langs koloniale architectuur.'},
+  {cat:'bezienswaardigheid',s:3,n:'Lac Cai',c:[12.1076,-68.2265],d:'Lokale ontmoetingsplek aan de oostkust. Simpele lunch en zondagse muziek.'},
+  {cat:'activiteit',s:5,n:'Sorobon Beach — windsurf & kite',c:[12.1006,-68.2302],d:'Wereldberoemde windsurfspot met ondiep plat water en constante passaatwind.'},
+  {cat:'activiteit',s:5,n:'Lac Bay',c:[12.0980,-68.2280],d:'Uitgestrekte beschermde baai — ideaal voor beginners op windsurf, SUP en kajak.'},
+  {cat:'activiteit',s:5,n:'Brandaris hike',c:[12.2870,-68.4015],d:'Beklimming van de hoogste piek (241m) in Washington Slagbaai NP. Fenomenaal uitzicht.'},
+  {cat:'activiteit',s:5,n:'Klein Bonaire watertaxi',c:[12.1527,-68.2762],d:"Watertaxi vanaf Karel's Pier — een dag snorkelen op het mooiste rif van Bonaire."},
+  {cat:'activiteit',s:4,n:'Mangrove kayak tour',c:[12.1085,-68.2340],d:'Geleide kayaktours door de mangroves van Lac Bay — uniek ecosysteem met zeesterren.'},
+  {cat:'activiteit',s:4,n:'Atlantis kitesurfspot',c:[12.0858,-68.2788],d:'Aan de zuidwestkust — gevorderde kitesurfspot met lange downwinders langs de kust.'},
+  {cat:'activiteit',s:4,n:'Subi Brandaris MTB',c:[12.2850,-68.3950],d:'Een van de mooiste mountainbike-routes — door cactusvlakten en heuvels.'},
+  {cat:'activiteit',s:3,n:'Te Amo SUP / kayak',c:[12.1310,-68.2680],d:'Rustige instap voor SUP en kajak vlak bij de luchthaven. Goed voor beginners.'},
+  {cat:'activiteit',s:3,n:'Bonaire Adventure Tours',c:[12.1480,-68.2730],d:'Lokale aanbieder — kajakken, off-road rijden en natuur-excursies.'},
 ];
 
-const CAT_LABELS={snorkel:'Snorkel/Duik',restaurant:'Restaurant',hotel:'Hotel',bezienswaardigheid:'Bezienswaardigheid',activiteit:'Activiteit'};
-function starHTML(n){return Array.from({length:5},(_,i)=>`<span style="color:${i<n?'#d4af50':'rgba(245,237,224,.2)'};font-size:13px;">&#9733;</span>`).join('')}
+const CL={snorkel:'Snorkel/Duik',restaurant:'Restaurant',hotel:'Hotel',bezienswaardigheid:'Bezienswaardigheid',activiteit:'Activiteit'};
+const SC='#1A8499';
+function st(n){return Array.from({length:5},(_,i)=>`<span style="color:${i<n?SC:'rgba(28,28,26,.16)'};font-size:13px">&#9733;</span>`).join('')}
 
-// MAP
-const map=L.map('map',{zoomControl:true}).setView([12.158,-68.310],11);
-const voyager=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'});
+const map=L.map('map').setView([12.158,-68.310],11);
+const voy=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'});
 const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri'});
-voyager.addTo(map);
-L.control.layers({'Standaard':voyager,'Satelliet':sat},null,{position:'topright',collapsed:true}).addTo(map);
+voy.addTo(map);
+L.control.layers({'Standaard':voy,'Satelliet':sat},null,{position:'topright',collapsed:true}).addTo(map);
 
-function mkIcon(cat,n){const sz=n===5?22:n===4?17:13,h=sz/2;return L.divIcon({className:'',html:`<div class="marker-dot ${cat}" style="width:${sz}px;height:${sz}px;"></div>`,iconSize:[sz,sz],iconAnchor:[h,h],popupAnchor:[0,-h]})}
-function mkPopup(p){const gm=`https://www.google.com/maps/search/?api=1&query=${p.coords[0]},${p.coords[1]}`;return `<span class="popup-cat ${p.cat}">${CAT_LABELS[p.cat]}</span><div class="popup-title">${p.name}</div><div class="popup-stars">${starHTML(p.stars)}</div><div class="popup-desc">${p.desc}</div><a class="popup-link" href="${gm}" target="_blank" rel="noopener">Open in Google Maps &rarr;</a>`}
+function ico(cat,n){const sz=n===5?21:n===4?16:12,h=sz/2;return L.divIcon({className:'',html:`<div class="marker-dot ${cat}" style="width:${sz}px;height:${sz}px"></div>`,iconSize:[sz,sz],iconAnchor:[h,h],popupAnchor:[0,-h]})}
+function pop(p){const gm=`https://www.google.com/maps/search/?api=1&query=${p.c[0]},${p.c[1]}`;return`<span class="pc ${p.cat}">${CL[p.cat]}</span><div class="pn">${p.n}</div><div class="ps">${st(p.s)}</div><div class="pd">${p.d}</div><a class="pl" href="${gm}" target="_blank" rel="noopener">Open in Google Maps &rarr;</a>`}
 
-const lgroups={};Object.keys(CAT_LABELS).forEach(c=>{lgroups[c]=L.layerGroup().addTo(map)});
-const mmap={};
-POIS.forEach((p,i)=>{const m=L.marker(p.coords,{icon:mkIcon(p.cat,p.stars)}).bindPopup(mkPopup(p),{maxWidth:300,autoPanPadding:[40,80]});lgroups[p.cat].addLayer(m);mmap[i]=m});
+const lg={};Object.keys(CL).forEach(k=>{lg[k]=L.layerGroup().addTo(map)});
+const mm={};
+P.forEach((p,i)=>{const m=L.marker(p.c,{icon:ico(p.cat,p.s)}).bindPopup(pop(p),{maxWidth:290,autoPanPadding:[40,60]});lg[p.cat].addLayer(m);mm[i]=m});
 
-const counts=POIS.reduce((a,p)=>{a[p.cat]=(a[p.cat]||0)+1;return a},{});
-document.querySelectorAll('.chip').forEach(chip=>{
-  const cat=chip.dataset.filter;
-  chip.querySelector('.ct').textContent=`(${counts[cat]||0})`;
-  chip.addEventListener('click',()=>{const off=chip.classList.toggle('inactive');if(off)map.removeLayer(lgroups[cat]);else lgroups[cat].addTo(map)});
+const cnt=P.reduce((a,p)=>{a[p.cat]=(a[p.cat]||0)+1;return a},{});
+document.querySelectorAll('.chip').forEach(ch=>{
+  ch.querySelector('.ct').textContent=`(${cnt[ch.dataset.filter]||0})`;
+  ch.addEventListener('click',()=>{const off=ch.classList.toggle('off');off?map.removeLayer(lg[ch.dataset.filter]):lg[ch.dataset.filter].addTo(map)});
 });
 
 // TABLE
-const TABS=['snorkel','restaurant','hotel','bezienswaardigheid','activiteit'];
-const tc=document.getElementById('table-container');
-TABS.forEach(cat=>{
-  const panel=document.createElement('div');
-  panel.className='tab-panel'+(cat==='snorkel'?' active':'');
-  panel.dataset.panel=cat;
-  const items=POIS.map((p,i)=>({...p,_i:i})).filter(p=>p.cat===cat).sort((a,b)=>b.stars-a.stars);
-  panel.innerHTML=`<table class="poi-table"><thead><tr>
-    <th style="width:32%">Naam</th>
-    <th style="width:16%">Beoordeling</th>
-    <th class="hide-mob">Beschrijving</th>
-    <th style="width:9%;text-align:right">Kaart</th>
-  </tr></thead><tbody>${items.map(p=>`<tr data-idx="${p._i}">
-    <td><div class="td-name">${p.name}</div></td>
-    <td><div class="td-stars">${starHTML(p.stars)}</div></td>
-    <td class="hide-mob" style="color:var(--muted);font-size:.83rem;line-height:1.5">${p.desc}</td>
-    <td class="td-maps" style="text-align:right"><a href="https://www.google.com/maps/search/?api=1&query=${p.coords[0]},${p.coords[1]}" target="_blank" rel="noopener">Maps &rarr;</a></td>
+const CATS=['snorkel','restaurant','hotel','bezienswaardigheid','activiteit'];
+const tc=document.getElementById('tc');
+CATS.forEach(cat=>{
+  const el=document.createElement('div');
+  el.className='pan'+(cat==='snorkel'?' on':'');
+  el.dataset.panel=cat;
+  const rows=P.map((p,i)=>({...p,i})).filter(p=>p.cat===cat).sort((a,b)=>b.s-a.s);
+  el.innerHTML=`<table><thead><tr>
+    <th style="width:30%">Naam</th><th style="width:14%">Beoordeling</th>
+    <th class="hm">Omschrijving</th><th style="width:9%;text-align:right">Kaart</th>
+  </tr></thead><tbody>${rows.map(p=>`<tr data-i="${p.i}">
+    <td><div class="tn">${p.n}</div></td>
+    <td><div class="ts">${st(p.s)}</div></td>
+    <td class="tdesc hm">${p.d}</td>
+    <td class="tl" style="text-align:right"><a href="https://www.google.com/maps/search/?api=1&query=${p.c[0]},${p.c[1]}" target="_blank" rel="noopener">Maps &rarr;</a></td>
   </tr>`).join('')}</tbody></table>`;
-  tc.appendChild(panel);
+  tc.appendChild(el);
 });
 
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelector(`.tab-panel[data-panel="${btn.dataset.tab}"]`).classList.add('active');
+document.querySelectorAll('.tb').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.pan').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.querySelector(`.pan[data-panel="${b.dataset.tab}"]`).classList.add('on');
   });
 });
 
 tc.addEventListener('click',e=>{
-  const row=e.target.closest('tr[data-idx]');
+  const row=e.target.closest('tr[data-i]');
   if(!row||e.target.closest('a'))return;
-  const idx=parseInt(row.dataset.idx);
-  const p=POIS[idx];const m=mmap[idx];
-  if(!m||!p)return;
-  if(!map.hasLayer(lgroups[p.cat])){lgroups[p.cat].addTo(map);const c=document.querySelector(`.chip[data-filter="${p.cat}"]`);if(c)c.classList.remove('inactive')}
-  document.getElementById('map-section').scrollIntoView({behavior:'smooth'});
-  setTimeout(()=>{map.setView(p.coords,14,{animate:true});m.openPopup()},600);
+  const i=+row.dataset.i,p=P[i],m=mm[i];
+  if(!p||!m)return;
+  if(!map.hasLayer(lg[p.cat])){lg[p.cat].addTo(map);const ch=document.querySelector(`.chip[data-filter="${p.cat}"]`);if(ch)ch.classList.remove('off')}
+  document.getElementById('ms').scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>{map.setView(p.c,14,{animate:true});m.openPopup()},600);
 });
 </script>
 </body>
